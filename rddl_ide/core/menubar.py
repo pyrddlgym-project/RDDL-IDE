@@ -5,49 +5,6 @@ import tkinter.filedialog as fd
 
 from core.execution import evaluate_policy_fn
 
-DOMAIN_TEMPLATE = '''
-domain Untitled {
-        
-    types {
-    };
-            
-    pvariables {
-    };
-        
-    cpfs {
-    };
-                
-    reward = ;        
-}
-'''
-
-INSTANCE_TEMPLATE = '''
-non-fluents nf_Untitled {
-
-    domain = Untitled;
-    
-    objects {
-    };
-    
-    non-fluents {
-    };
-}
-
-instance Untitled_inst {
-
-    domain = Untitled;
-
-    non-fluents = nf_Untitled;
-    
-    init-state {
-    };
-
-    max-nondef-actions = pos-inf;
-    horizon = 100;
-    discount = 1.0;
-}
-'''
-
 
 def load_policy(name):
     abs_path = os.path.dirname(os.path.abspath(__file__))
@@ -61,18 +18,25 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
                              domain_editor, inst_editor, policy_editor):
     domain_file, inst_file, viz, vectorized = None, None, None, False
     
+    # load template RDDL
+    abs_path = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(abs_path, 'domain.rddl'), 'r') as dom_txt:
+        DOMAIN_TEMPLATE = dom_txt.read()
+    with open(os.path.join(abs_path, 'instance.rddl'), 'r') as inst_txt:
+        INSTANCE_TEMPLATE = inst_txt.read()
+    
     # FILE functions
     def create_domain():
         global domain_file, viz
         domain_file, viz = None, None
-        domain_window.title('[Domain] Untitled.rddl')
+        domain_window.title('[Domain] Untitled')
         domain_editor.delete(1.0, END)
         domain_editor.insert(1.0, DOMAIN_TEMPLATE)
         
     def create_instance():
         global inst_file
         inst_file = None
-        inst_window.title('[Instance] Untitled.rddl')
+        inst_window.title('[Instance] Untitled')
         inst_editor.delete(1.0, END)
         inst_editor.insert(1.0, INSTANCE_TEMPLATE)
     
@@ -139,7 +103,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     def save_domain():
         global domain_file        
         if domain_file is None:
-            domain_file = fd.asksaveasfilename(initialfile='Untitled.rddl',
+            domain_file = fd.asksaveasfilename(initialfile='domain.rddl',
                                                defaultextension='.rddl',
                                                filetypes=[('RDDL File', '*.rddl*')])
             if domain_file == '': domain_file = None            
@@ -152,7 +116,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     def save_instance():
         global inst_file        
         if inst_file is None:
-            inst_file = fd.asksaveasfilename(initialfile='Untitled.rddl',
+            inst_file = fd.asksaveasfilename(initialfile='instance.rddl',
                                              defaultextension='.rddl',
                                              filetypes=[('RDDL File', '*.rddl*')])
             if inst_file == '': inst_file = None            

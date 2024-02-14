@@ -8,7 +8,7 @@ def main():
     
     # domain window
     domain_window = Tk()
-    domain_window.title('[Domain] Untitled.rddl')
+    domain_window.title('[Domain] Untitled')
     w, h = domain_window.maxsize() 
     w = int(w * 0.99)
     h = int(h * 0.95)
@@ -19,7 +19,7 @@ def main():
     
     # instance window
     inst_window = Tk()
-    inst_window.title('[Instance] Untitled.rddl')
+    inst_window.title('[Instance] Untitled')
     inst_window.geometry(f'{w // 2}x{h // 2}+{w // 2}+0')
     inst_window.resizable(height=None, width=None)
     inst_window.columnconfigure(0, weight=1)

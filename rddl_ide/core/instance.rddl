@@ -1,0 +1,24 @@
+non-fluents nf_Untitled {
+
+    domain = Untitled;
+    
+    objects {
+    };
+    
+    non-fluents {
+    };
+}
+
+instance Untitled_inst {
+
+    domain = Untitled;
+
+    non-fluents = nf_Untitled;
+    
+    init-state {
+    };
+
+    max-nondef-actions = pos-inf;
+    horizon = 100;
+    discount = 1.0;
+}
