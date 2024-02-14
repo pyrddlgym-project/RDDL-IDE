@@ -27,14 +27,14 @@ def assign_highlighting_rddl(text_area):
     TAGDEFS = {}
     TAGDEFS['COMMENT'] = {'foreground': 'green', 'background': None}
     TAGDEFS['COMPONENT'] = {'foreground': 'navy', 'background': None, 'font': ('Courier New', 12, 'bold')}
-    TAGDEFS['KEYWORD'] = {'foreground': 'navy', 'background': None}
+    TAGDEFS['KEYWORD'] = {'foreground': 'navy', 'background': None, 'font': ('Courier New', 12, 'bold')}
     TAGDEFS['FTYPES'] = {'foreground': 'navy', 'background': None}
     TAGDEFS['TYPES'] = {'foreground': 'navy', 'background': None}
-    TAGDEFS['NUMBER'] = {'foreground': 'black', 'background': None}
-    TAGDEFS['LITERAL'] = {'foreground': 'navy', 'background': None}
-    TAGDEFS['BUILTIN'] = {'foreground': 'darkblue', 'background': None}
-    TAGDEFS['AGGREGATION'] = {'foreground': 'darkblue', 'background': None}
-    TAGDEFS['RANDOM'] = {'foreground': 'darkblue', 'background': None}
+    TAGDEFS['NUMBER'] = {'foreground': 'gray10', 'background': None}
+    TAGDEFS['LITERAL'] = {'foreground': 'gray10', 'background': None}
+    TAGDEFS['BUILTIN'] = {'foreground': 'blue2', 'background': None}
+    TAGDEFS['AGGREGATION'] = {'foreground': 'blue2', 'background': None}
+    TAGDEFS['RANDOM'] = {'foreground': 'blue2', 'background': None}
     
     # assign syntax highlighter to text_area
     cd = ic.ColorDelegator()
