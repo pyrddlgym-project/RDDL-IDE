@@ -10,11 +10,8 @@ class TextLineNumbers(Text):
         super().__init__(master, **kwargs)
  
         self.text_widget = text_widget
-        self.text_widget.bind('<KeyRelease>', self.on_key_release)
-        self.text_widget.bind('<FocusIn>', self.on_key_release)
-        self.text_widget.bind('<MouseWheel>', self.on_key_release)
-        self.text_widget.bind('<Configure>', self.on_key_release)
-        self.text_widget.bind('<<Modified>>', self.on_key_release)
+        for tag in ['<KeyRelease>', '<FocusIn>', '<MouseWheel>', '<Configure>', '<<Modified>>']:
+            self.text_widget.bind(tag, self.on_key_release)
         self.configure(state='disabled')
  
     def on_key_release(self, event=None):
@@ -54,5 +51,4 @@ class CodeEditor:
             assign_highlighting_rddl(text_area)
         else:
             assign_highlighting_python(text_area)
-        
         

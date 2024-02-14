@@ -3,9 +3,10 @@ from tkinter import messagebox, END
 
 import pyRDDLGym
 from pyRDDLGym.core.policy import BaseAgent
+from pyRDDLGym.core.visualizer.movie import MovieGenerator
 
     
-def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, vectorized):
+def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record, vectorized):
     
     # compile policy from given class
     policy_source = policy_editor.get(1.0, END)
@@ -19,11 +20,12 @@ def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, vectorized):
     # evaluation handle
     def target():
         try:
-            env = pyRDDLGym.make(domain=domain_file,
-                                 instance=inst_file,
-                                 enforce_action_constraints=True, 
+            env = pyRDDLGym.make(domain=domain_file, instance=inst_file, 
                                  vectorized=vectorized)
-            env.set_visualizer(viz)
+            movie_gen = None
+            if record is not None:
+                movie_gen = MovieGenerator(record, env.model.domain_name, 9999)
+            env.set_visualizer(viz, movie_gen=movie_gen)
             policy = build_policy(env) 
             policy.evaluate(env, episodes=1, verbose=True, render=True)
             env.close()

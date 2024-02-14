@@ -9,15 +9,12 @@ DOMAIN_TEMPLATE = '''
 domain Untitled {
         
     types {
-
     };
             
     pvariables {
-
     };
         
     cpfs {
-    
     };
                 
     reward = ;        
@@ -27,14 +24,12 @@ domain Untitled {
 INSTANCE_TEMPLATE = '''
 non-fluents nf_Untitled {
 
-    domain = ;
+    domain = Untitled;
     
     objects {
-        
     };
     
     non-fluents {
-        
     };
 }
 
@@ -45,14 +40,11 @@ instance Untitled_inst {
     non-fluents = nf_Untitled;
     
     init-state {
-    
     };
 
-    max-nondef-actions = ;
-    
-    horizon = ;
-    
-    discount = ;
+    max-nondef-actions = pos-inf;
+    horizon = 100;
+    discount = 1.0;
 }
 '''
 
@@ -74,8 +66,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     # FILE functions
     def create_domain():
         global domain_file, viz
-        domain_file = None
-        viz = None
+        domain_file, viz = None, None
         domain_window.title('[Domain] Untitled.rddl')
         domain_editor.delete(1.0, END)
         domain_editor.insert(1.0, DOMAIN_TEMPLATE)
@@ -119,16 +110,18 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         
         tk.Label(master, text="Domain").grid(row=0)
         tk.Label(master, text="Instance").grid(row=1)
-        
         e1 = tk.Entry(master)
         e2 = tk.Entry(master)
         e1.grid(row=0, column=1)
         e2.grid(row=1, column=1)
         
+        def close_me():
+            master.quit()      
+            master.destroy()   
+            
         def select_problem():
             global domain_file, inst_file, viz
-            domain = e1.get()
-            instance = e2.get()
+            domain, instance = e1.get(), e2.get()
             
             from rddlrepository.core.manager import RDDLRepoManager
             manager = RDDLRepoManager()
@@ -148,17 +141,10 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             with open(inst_file, 'r') as new_file:
                 inst_editor.insert(1.0, new_file.read())
                 new_file.close()   
-            
-            master.quit()      
-            master.destroy()   
+            close_me()  
         
-        def close_me():
-            master.quit()      
-            master.destroy()   
-            
         tk.Button(master, text='Load', command=select_problem).grid(
             row=3, column=0, sticky=tk.W, pady=4)
-        
         tk.Button(master, text='Close', command=close_me).grid(
             row=3, column=1, sticky=tk.W, pady=4)
         
@@ -226,24 +212,30 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         vectorized = False
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, load_policy('noop'))
-        
+        policy_window.title('[Policy] NoOp')
+    
+    load_noop()
+    
     def load_random(): 
         global vectorized
         vectorized = False
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, load_policy('random'))
+        policy_window.title('[Policy] Random')
     
     def load_jax_slp():
         global vectorized
         vectorized = True
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, load_policy('jax_slp'))
+        policy_window.title('[Policy] JAX-SLP')
         
     def load_jax_drp():
         global vectorized
         vectorized = True
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, load_policy('jax_drp'))
+        policy_window.title('[Policy] JAX-DRP')
         
     # RUN functions
     def evaluate():
@@ -251,8 +243,16 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, vectorized)
-            
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, None, vectorized)
+    
+    def record():
+        global domain_file, inst_file, viz, vectorized
+        save_domain()
+        save_instance()
+        if domain_file is not None and inst_file is not None:
+            record = fd.askdirectory()
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record, vectorized)
+        
     # create menu bars
     domain_menu = Menu(domain_window)
     inst_menu = Menu(inst_window)
@@ -271,6 +271,13 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     domain_file_menu.add_command(label='Exit', command=exit_application)
     domain_menu.add_cascade(label='File', menu=domain_file_menu)
     
+    # domain edit menu
+    domain_edit_menu = Menu(domain_menu, tearoff=False, activebackground='DodgerBlue')
+    domain_edit_menu.add_command(label='Copy', command=copy_domain_text)
+    domain_edit_menu.add_command(label='Cut', command=cut_domain_text)
+    domain_edit_menu.add_command(label='Paste', command=paste_domain_text)
+    domain_menu.add_cascade(label='Edit', menu=domain_edit_menu)
+    
     # instance file menu
     inst_file_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
     inst_file_menu.add_command(label='New Instance', command=create_instance)
@@ -281,13 +288,6 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     inst_file_menu.add_command(label='Save Instance As...', command=save_instance_as)
     inst_menu.add_cascade(label='File', menu=inst_file_menu)
     
-    # domain edit menu
-    domain_edit_menu = Menu(domain_menu, tearoff=False, activebackground='DodgerBlue')
-    domain_edit_menu.add_command(label='Copy', command=copy_domain_text)
-    domain_edit_menu.add_command(label='Cut', command=cut_domain_text)
-    domain_edit_menu.add_command(label='Paste', command=paste_domain_text)
-    domain_menu.add_cascade(label='Edit', menu=domain_edit_menu)
-    
     # instance edit menu
     inst_edit_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
     inst_edit_menu.add_command(label='Copy', command=copy_instance_text)
@@ -295,7 +295,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     inst_edit_menu.add_command(label='Paste', command=paste_instance_text)
     inst_menu.add_cascade(label='Edit', menu=inst_edit_menu)
     
-    # policy menu
+    # policy load menu
     policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
     policy_load_menu.add_command(label='Load No-Op', command=load_noop)
     policy_load_menu.add_command(label='Load Random', command=load_random)
@@ -304,14 +304,14 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     policy_load_menu.add_command(label='Load JAX Planner (DRP)', command=load_jax_drp)
     policy_menu.add_cascade(label='Select', menu=policy_load_menu)
     
+    # policy run menu
     policy_run_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
     policy_run_menu.add_command(label='Evaluate', command=evaluate)
+    policy_run_menu.add_command(label='Record', command=record)
     policy_menu.add_cascade(label='Run', menu=policy_run_menu)
     
     # assign menu bar to window
     domain_window.config(menu=domain_menu)
     inst_window.config(menu=inst_menu)
     policy_window.config(menu=policy_menu)
-    
-    return domain_menu, inst_menu
 

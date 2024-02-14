@@ -1,17 +1,18 @@
 from tkinter import Tk
 
 from core.codearea import CodeEditor
-from core.menubar import assign_menubar_functions, load_policy
+from core.menubar import assign_menubar_functions
 
 
 def main():
     
     # domain window
     domain_window = Tk()
-    domain_window.title('[Domain] Untitled.rddl')         
-    domain_window.geometry('%dx%d+%d+%d' % (domain_window.winfo_screenwidth() / 2,
-                                            domain_window.winfo_screenheight() * 0.9,
-                                            0, 0))
+    domain_window.title('[Domain] Untitled.rddl')
+    w, h = domain_window.maxsize() 
+    w = int(w * 0.99)
+    h = int(h * 0.95)
+    domain_window.geometry(f'{w // 2}x{h}+0+0')
     domain_window.resizable(height=None, width=None)
     domain_window.columnconfigure(0, weight=1)
     domain_window.rowconfigure(0, weight=1)
@@ -19,10 +20,7 @@ def main():
     # instance window
     inst_window = Tk()
     inst_window.title('[Instance] Untitled.rddl')
-    inst_window.geometry('%dx%d+%d+%d' % (inst_window.winfo_screenwidth() / 2,
-                                          inst_window.winfo_screenheight() / 2,
-                                          domain_window.winfo_screenwidth() / 2,
-                                          0))
+    inst_window.geometry(f'{w // 2}x{h // 2}+{w // 2}+0')
     inst_window.resizable(height=None, width=None)
     inst_window.columnconfigure(0, weight=1)
     inst_window.rowconfigure(0, weight=1)
@@ -30,10 +28,8 @@ def main():
     # policy window
     policy_window = Tk()
     policy_window.title('[Policy] Policy')
-    policy_window.geometry('%dx%d+%d+%d' % (policy_window.winfo_screenwidth() / 2,
-                                            policy_window.winfo_screenheight() / 2 * 0.75,
-                                            inst_window.winfo_screenwidth() / 2,
-                                            inst_window.winfo_screenheight() / 1.85))
+    o = 50
+    policy_window.geometry(f'{w // 2}x{h // 2 - o}+{w // 2}+{h // 2 + o}')
     policy_window.resizable(height=None, width=None)
     policy_window.columnconfigure(0, weight=1)
     policy_window.rowconfigure(0, weight=1)
@@ -42,7 +38,6 @@ def main():
     domain_editor = CodeEditor(domain_window)
     inst_editor = CodeEditor(inst_window)
     policy_editor = CodeEditor(policy_window, rddl=False)
-    policy_editor.text.insert(1.0, load_policy('noop'))
     
     # menu bars
     assign_menubar_functions(domain_window, inst_window, policy_window, 
