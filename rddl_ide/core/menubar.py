@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import END, Menu
 import tkinter.filedialog as fd
 
+from pyRDDLGym.core.env import RDDLEnv
+
 from core.execution import evaluate_policy_fn
 
 
@@ -16,7 +18,8 @@ def load_policy(name):
 
 def assign_menubar_functions(domain_window, inst_window, policy_window,
                              domain_editor, inst_editor, policy_editor):
-    domain_file, inst_file, viz, vectorized = None, None, None, False
+    domain_file, inst_file, viz, vectorized, base_class = \
+        None, None, None, False, RDDLEnv
     
     # load template RDDL
     abs_path = os.path.dirname(os.path.abspath(__file__))
@@ -160,42 +163,48 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         inst_editor.event_generate('<<Paste>>')
     
     def load_noop():
-        global vectorized
-        vectorized = False
+        global vectorized, base_class
+        vectorized, base_class = False, RDDLEnv
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, load_policy('noop'))
         policy_window.title('[Policy] NoOp')
     
     load_noop()
     
-    def load_random(): 
-        global vectorized
-        vectorized = False
+    def _fill_policy_window(policy_name, caption):
         policy_editor.delete(1.0, END)
-        policy_editor.insert(1.0, load_policy('random'))
-        policy_window.title('[Policy] Random')
+        policy_editor.insert(1.0, load_policy(policy_name))
+        policy_window.title(f'[Policy] {caption}')
+        
+    def load_random(): 
+        global vectorized, base_class
+        vectorized, base_class = False, RDDLEnv
+        _fill_policy_window('random', 'Random')
     
     def load_jax_slp():
-        global vectorized
-        vectorized = True
-        policy_editor.delete(1.0, END)
-        policy_editor.insert(1.0, load_policy('jax_slp'))
-        policy_window.title('[Policy] JAX-SLP')
+        global vectorized, base_class
+        vectorized, base_class = True, RDDLEnv
+        _fill_policy_window('jax_slp', 'JAX-SLP')
         
     def load_jax_drp():
-        global vectorized
-        vectorized = True
-        policy_editor.delete(1.0, END)
-        policy_editor.insert(1.0, load_policy('jax_drp'))
-        policy_window.title('[Policy] JAX-DRP')
+        global vectorized, base_class
+        vectorized, base_class = True, RDDLEnv
+        _fill_policy_window('jax_drp', 'JAX-DRP')
+        
+    def load_sb3_ppo():
+        from pyRDDLGym_rl.core.env import SimplifiedActionRDDLEnv
+        global vectorized, base_class
+        vectorized, base_class = True, SimplifiedActionRDDLEnv
+        _fill_policy_window('sb3_ppo', 'StableBaselines3-PPO')
         
     # RUN functions
     def evaluate():
-        global domain_file, inst_file, viz, vectorized
+        global domain_file, inst_file, viz, vectorized, base_class
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, None, vectorized)
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, 
+                               viz, None, vectorized, base_class)
     
     def record():
         global domain_file, inst_file, viz, vectorized
@@ -249,11 +258,14 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     
     # policy load menu
     policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
-    policy_load_menu.add_command(label='Load No-Op', command=load_noop)
-    policy_load_menu.add_command(label='Load Random', command=load_random)
+    policy_load_menu.add_command(label='No-Op', command=load_noop)
+    policy_load_menu.add_command(label='Random', command=load_random)
     policy_load_menu.add_separator()
-    policy_load_menu.add_command(label='Load JAX Planner (SLP)', command=load_jax_slp)
-    policy_load_menu.add_command(label='Load JAX Planner (DRP)', command=load_jax_drp)
+    policy_load_menu.add_command(label='JAX Planner (SLP)', command=load_jax_slp)
+    policy_load_menu.add_command(label='JAX Planner (DRP)', command=load_jax_drp)
+    policy_load_menu.add_separator()
+    policy_load_menu.add_command(label='Stable-Baselines3 (PPO)', command=load_sb3_ppo)
+    # policy_load_menu.add_command(label='RLlib (PPO)', command=load_rllib_ppo)
     policy_menu.add_cascade(label='Select', menu=policy_load_menu)
     
     # policy run menu
