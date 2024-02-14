@@ -3,7 +3,7 @@ import idlelib.colorizer as ic
 import idlelib.percolator as ip
 
 
-def assign_highlighting(text_area):
+def assign_highlighting_rddl(text_area):
     TAGDEFS = {}
     
     # comments

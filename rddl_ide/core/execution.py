@@ -5,21 +5,11 @@ import pyRDDLGym
 from pyRDDLGym.core.policy import BaseAgent
 
     
-def evaluate_policy_fn(domain_file, inst_file, policy_file):
+def evaluate_policy_fn(domain_file, inst_file, policy_source):
     
     # compile policy from given class
-    with open(policy_file, 'r') as f:
-        source = '\n'.join(f.readlines())
-        compiled = compile(source, '', 'exec')
+    compiled = compile(policy_source, '', 'exec')
     exec(compiled, globals())
-        
-    class DynamicAgent(BaseAgent):
-        
-        def sample_action(self, state):
-            return sample_action(self, state)
-    
-        def reset(self):
-            return reset(self)
     
     # evaluation handle
     def target(out):
@@ -27,15 +17,15 @@ def evaluate_policy_fn(domain_file, inst_file, policy_file):
             env = pyRDDLGym.make(domain=domain_file,
                                  instance=inst_file,
                                  enforce_action_constraints=True)
-            policy = DynamicAgent()   
+            policy = Policy(action_space=env.action_space,
+                            num_actions=env.max_allowed_actions)   
             policy.evaluate(env, episodes=1, verbose=True, render=True)
+            env.close()
         except Exception as e:
             out[0] = e
     
     err = [None] * 1
-    thread = Thread(target=target, args=(err,))
-    thread.start()
-    thread.join()
     if err[0] is not None:
         messagebox.showerror('RDDL error', err[0])
         raise err[0]
+    target(err)

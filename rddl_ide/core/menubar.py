@@ -57,7 +57,8 @@ instance Untitled_inst {
 '''
 
 
-def assign_menubar_functions(domain_window, inst_window, domain_editor, inst_editor):
+def assign_menubar_functions(domain_window, inst_window, policy_window, 
+                             domain_editor, inst_editor, policy_editor):
     domain_file, inst_file = None, None
     
     # FILE functions
@@ -211,9 +212,8 @@ def assign_menubar_functions(domain_window, inst_window, domain_editor, inst_edi
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            policy_file = fd.askopenfilename(defaultextension='.py',
-                                             filetypes=[('Python File', '*.py*')])
-            evaluate_policy_fn(domain_file, inst_file, policy_file)
+            policy_source = policy_editor.get(1.0, END)
+            evaluate_policy_fn(domain_file, inst_file, policy_source)
             
     # create menu bars
     domain_menu = Menu(domain_window)
