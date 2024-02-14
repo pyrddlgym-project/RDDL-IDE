@@ -191,19 +191,18 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         _fill_policy_window('sb3_ppo', 'StableBaselines3-PPO')
         
     # policy RUN functions
-    def evaluate():
+    def _evaluate(record):
         global domain_file, inst_file, viz
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, None)
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record)
+    
+    def evaluate():
+        _evaluate(None)
     
     def record():
-        global domain_file, inst_file, viz
-        save_domain()
-        save_instance()
-        if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, fd.askdirectory())
+        _evaluate(fd.askdirectory())
         
     # create menu bars
     domain_menu = Menu(domain_window)
