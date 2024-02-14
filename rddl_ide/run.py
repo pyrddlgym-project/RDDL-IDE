@@ -1,7 +1,7 @@
 from tkinter import Tk
 
 from core.codearea import CodeEditor
-from core.menubar import assign_menubar_functions, NOOP_POLICY
+from core.menubar import assign_menubar_functions, load_policy
 
 
 def main():
@@ -42,7 +42,7 @@ def main():
     domain_editor = CodeEditor(domain_window)
     inst_editor = CodeEditor(inst_window)
     policy_editor = CodeEditor(policy_window, rddl=False)
-    policy_editor.text.insert(1.0, NOOP_POLICY)
+    policy_editor.text.insert(1.0, load_policy('noop'))
     
     # menu bars
     assign_menubar_functions(domain_window, inst_window, policy_window, 

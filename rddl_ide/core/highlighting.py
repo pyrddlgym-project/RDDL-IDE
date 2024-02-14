@@ -57,3 +57,9 @@ def assign_highlighting_rddl(text_area):
     cd.idprog = re.compile(IDPROG, re.S)
     cd.tagdefs = {**cd.tagdefs, **TAGDEFS}
     ip.Percolator(text_area).insertfilter(cd)
+
+
+def assign_highlighting_python(text_area):
+    cd = ic.ColorDelegator()
+    ip.Percolator(text_area).insertfilter(cd)
+    

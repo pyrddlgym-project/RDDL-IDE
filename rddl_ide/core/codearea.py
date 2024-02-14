@@ -1,7 +1,7 @@
 from tkinter import Text, Scrollbar, \
     LEFT, RIGHT, BOTH, NONE, HORIZONTAL, VERTICAL, BOTTOM, X, Y, END
 
-from core.highlighting import assign_highlighting_rddl
+from core.highlighting import assign_highlighting_rddl, assign_highlighting_python
 
 
 class TextLineNumbers(Text):
@@ -52,5 +52,7 @@ class CodeEditor:
         text_area.config(yscrollcommand=horizontal.set, xscrollcommand=vertical.set) 
         if rddl:
             assign_highlighting_rddl(text_area)
+        else:
+            assign_highlighting_python(text_area)
         
         
