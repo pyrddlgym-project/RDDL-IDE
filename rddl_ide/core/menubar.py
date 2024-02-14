@@ -3,8 +3,6 @@ import tkinter as tk
 from tkinter import END, Menu
 import tkinter.filedialog as fd
 
-from pyRDDLGym.core.env import RDDLEnv
-
 from core.execution import evaluate_policy_fn
 
 
