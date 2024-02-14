@@ -1,4 +1,5 @@
 import os
+import tkinter as tk
 from tkinter import END, Menu
 import tkinter.filedialog as fd
 
@@ -98,6 +99,53 @@ def assign_menubar_functions(domain_window, inst_window, domain_editor, inst_edi
                 inst_editor.insert(1.0, new_file.read())
                 new_file.close()
     
+    def open_from_dialog():
+        global domain_file, inst_file
+        master = tk.Tk()
+        tk.Label(master, text="Domain").grid(row=0)
+        tk.Label(master, text="Instance").grid(row=1)
+        
+        e1 = tk.Entry(master)
+        e2 = tk.Entry(master)
+        e1.grid(row=0, column=1)
+        e2.grid(row=1, column=1)
+        
+        def select_problem():
+            global domain_file, inst_file
+            domain = e1.get()
+            instance = e2.get()
+            
+            from rddlrepository.core.manager import RDDLRepoManager
+            manager = RDDLRepoManager()
+            info = manager.get_problem(domain)
+            domain_file = info.get_domain()
+            inst_file = info.get_instance(instance)
+            
+            domain_window.title(f'[Domain] {os.path.basename(domain_file)}')
+            domain_editor.delete(1.0, END)
+            with open(domain_file, 'r') as new_file:
+                domain_editor.insert(1.0, new_file.read())
+                new_file.close()
+                
+            inst_window.title(f'[Instance] {os.path.basename(inst_file)}')
+            inst_editor.delete(1.0, END)
+            with open(inst_file, 'r') as new_file:
+                inst_editor.insert(1.0, new_file.read())
+                new_file.close()   
+            
+            master.quit()      
+            master.destroy()   
+        
+        def close_me():
+            master.quit()      
+            master.destroy()   
+            
+        tk.Button(master, text='Load', command=select_problem).grid(
+            row=3, column=0, sticky=tk.W, pady=4)
+        
+        tk.Button(master, text='Close', command=close_me).grid(
+            row=3, column=1, sticky=tk.W, pady=4)
+        
     def save_domain():
         global domain_file        
         if domain_file is None:
@@ -174,7 +222,10 @@ def assign_menubar_functions(domain_window, inst_window, domain_editor, inst_edi
     # domain file menu
     domain_file_menu = Menu(domain_menu, tearoff=False, activebackground='DodgerBlue')
     domain_file_menu.add_command(label='New Domain', command=create_domain)
-    domain_file_menu.add_command(label='Open Domain...', command=open_domain)
+    domain_file_menu.add_separator()
+    domain_file_menu.add_command(label='Load Domain from Repository...', command=open_from_dialog)
+    domain_file_menu.add_command(label='Load Domain from File...', command=open_domain)
+    domain_file_menu.add_separator()
     domain_file_menu.add_command(label='Save Domain', command=save_domain)
     domain_file_menu.add_command(label='Save Domain As...', command=save_domain_as)
     domain_file_menu.add_separator()
@@ -184,7 +235,9 @@ def assign_menubar_functions(domain_window, inst_window, domain_editor, inst_edi
     # instance file menu
     inst_file_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
     inst_file_menu.add_command(label='New Instance', command=create_instance)
-    inst_file_menu.add_command(label='Open Instance...', command=open_instance)
+    inst_file_menu.add_separator()
+    inst_file_menu.add_command(label='Load Instance from File...', command=open_instance)
+    inst_file_menu.add_separator()
     inst_file_menu.add_command(label='Save Instance', command=save_instance)
     inst_file_menu.add_command(label='Save Instance As...', command=save_instance_as)
     inst_menu.add_cascade(label='File', menu=inst_file_menu)
@@ -213,3 +266,4 @@ def assign_menubar_functions(domain_window, inst_window, domain_editor, inst_edi
     inst_window.config(menu=inst_menu)
     
     return domain_menu, inst_menu
+
