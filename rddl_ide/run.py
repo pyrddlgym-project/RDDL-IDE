@@ -11,7 +11,7 @@ def main():
     domain_window.title('[Domain] Untitled')
     w, h = domain_window.maxsize() 
     w = int(w * 0.99)
-    h = int(h * 0.95)
+    h = int(h * 0.9)
     domain_window.geometry(f'{w // 2}x{h}+0+0')
     domain_window.resizable(height=None, width=None)
     domain_window.columnconfigure(0, weight=1)

@@ -6,8 +6,7 @@ from pyRDDLGym.core.policy import BaseAgent
 from pyRDDLGym.core.visualizer.movie import MovieGenerator
 
     
-def evaluate_policy_fn(domain_file, inst_file, policy_editor, 
-                       viz, record, vectorized, base_class):
+def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record):
     
     # compile policy from given class
     policy_source = policy_editor.get(1.0, END)
@@ -21,12 +20,12 @@ def evaluate_policy_fn(domain_file, inst_file, policy_editor,
     # evaluation handle
     def target():
         try:
-            env = pyRDDLGym.make(domain=domain_file, instance=inst_file, 
-                                 vectorized=vectorized,
-                                 base_class=base_class)
-            movie_gen = None
+            env_args = required_env_args()
+            env = pyRDDLGym.make(domain=domain_file, instance=inst_file, **env_args)
             if record is not None:
                 movie_gen = MovieGenerator(record, env.model.domain_name, 9999)
+            else:
+                movie_gen = None
             env.set_visualizer(viz, movie_gen=movie_gen)
             policy = build_policy(env) 
             policy.evaluate(env, episodes=1, verbose=True, render=True)

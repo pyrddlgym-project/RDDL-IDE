@@ -30,3 +30,6 @@ def build_policy(env):
     policy_hyperparams = {action: 1.0 for action in env.model.action_fluents}
     planner = JaxBackpropPlanner(rddl=env.model, **planner_args)
     return JaxOfflineController(planner, policy_hyperparams=policy_hyperparams, **train_args)
+
+def required_env_args():
+    return {'vectorized': True}

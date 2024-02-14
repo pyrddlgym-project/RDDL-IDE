@@ -18,8 +18,7 @@ def load_policy(name):
 
 def assign_menubar_functions(domain_window, inst_window, policy_window,
                              domain_editor, inst_editor, policy_editor):
-    domain_file, inst_file, viz, vectorized, base_class = \
-        None, None, None, False, RDDLEnv
+    domain_file, inst_file, viz = None, None, None
     
     # load template RDDL
     abs_path = os.path.dirname(os.path.abspath(__file__))
@@ -162,57 +161,49 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     def paste_instance_text():
         inst_editor.event_generate('<<Paste>>')
     
-    def load_noop():
-        global vectorized, base_class
-        vectorized, base_class = False, RDDLEnv
-        policy_editor.delete(1.0, END)
-        policy_editor.insert(1.0, load_policy('noop'))
-        policy_window.title('[Policy] NoOp')
-    
-    load_noop()
-    
+    # policy SELECT functions
     def _fill_policy_window(policy_name, caption):
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, load_policy(policy_name))
         policy_window.title(f'[Policy] {caption}')
+    
+    def load_noop():
+        _fill_policy_window('noop', 'NoOp')
+    
+    load_noop()
         
     def load_random(): 
-        global vectorized, base_class
-        vectorized, base_class = False, RDDLEnv
         _fill_policy_window('random', 'Random')
     
     def load_jax_slp():
-        global vectorized, base_class
-        vectorized, base_class = True, RDDLEnv
         _fill_policy_window('jax_slp', 'JAX-SLP')
         
+    def load_jax_replan():
+        _fill_policy_window('jax_replan', 'JAX-SLP-Replan')
+        
     def load_jax_drp():
-        global vectorized, base_class
-        vectorized, base_class = True, RDDLEnv
         _fill_policy_window('jax_drp', 'JAX-DRP')
         
+    def load_gurobi_replan():
+        _fill_policy_window('gurobi_replan', 'Gurobi-SLP-Replan')
+        
     def load_sb3_ppo():
-        from pyRDDLGym_rl.core.env import SimplifiedActionRDDLEnv
-        global vectorized, base_class
-        vectorized, base_class = True, SimplifiedActionRDDLEnv
         _fill_policy_window('sb3_ppo', 'StableBaselines3-PPO')
         
-    # RUN functions
+    # policy RUN functions
     def evaluate():
-        global domain_file, inst_file, viz, vectorized, base_class
+        global domain_file, inst_file, viz
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, 
-                               viz, None, vectorized, base_class)
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, None)
     
     def record():
-        global domain_file, inst_file, viz, vectorized
+        global domain_file, inst_file, viz
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            record = fd.askdirectory()
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record, vectorized)
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, fd.askdirectory())
         
     # create menu bars
     domain_menu = Menu(domain_window)
@@ -262,10 +253,12 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     policy_load_menu.add_command(label='Random', command=load_random)
     policy_load_menu.add_separator()
     policy_load_menu.add_command(label='JAX Planner (SLP)', command=load_jax_slp)
+    policy_load_menu.add_command(label='JAX Planner (SLP+Replan)', command=load_jax_replan)
     policy_load_menu.add_command(label='JAX Planner (DRP)', command=load_jax_drp)
     policy_load_menu.add_separator()
+    policy_load_menu.add_command(label='Gurobi Planner (SLP+Replan)', command=load_gurobi_replan)
+    policy_load_menu.add_separator()
     policy_load_menu.add_command(label='Stable-Baselines3 (PPO)', command=load_sb3_ppo)
-    # policy_load_menu.add_command(label='RLlib (PPO)', command=load_rllib_ppo)
     policy_menu.add_cascade(label='Select', menu=policy_load_menu)
     
     # policy run menu
