@@ -5,7 +5,7 @@ import pyRDDLGym
 from pyRDDLGym.core.policy import BaseAgent
 
     
-def evaluate_policy_fn(domain_file, inst_file, policy_editor, vectorized):
+def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, vectorized):
     
     # compile policy from given class
     policy_source = policy_editor.get(1.0, END)
@@ -23,6 +23,7 @@ def evaluate_policy_fn(domain_file, inst_file, policy_editor, vectorized):
                                  instance=inst_file,
                                  enforce_action_constraints=True, 
                                  vectorized=vectorized)
+            env.set_visualizer(viz)
             policy = build_policy(env) 
             policy.evaluate(env, episodes=1, verbose=True, render=True)
             env.close()

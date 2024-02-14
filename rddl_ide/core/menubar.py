@@ -68,12 +68,14 @@ def load_policy(name):
 def assign_menubar_functions(domain_window, inst_window, policy_window,
                              domain_editor, inst_editor, policy_editor):
     domain_file, inst_file = None, None
+    viz = None
     vectorized = False
     
     # FILE functions
     def create_domain():
-        global domain_file
+        global domain_file, viz
         domain_file = None
+        viz = None
         domain_window.title('[Domain] Untitled.rddl')
         domain_editor.delete(1.0, END)
         domain_editor.insert(1.0, DOMAIN_TEMPLATE)
@@ -86,9 +88,10 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         inst_editor.insert(1.0, INSTANCE_TEMPLATE)
     
     def open_domain():
-        global domain_file        
+        global domain_file, viz    
         domain_file = fd.askopenfilename(defaultextension='.rddl',
                                          filetypes=[('RDDL File', '*.rddl*')])
+        viz = None
         if domain_file == '': domain_file = None            
         if domain_file is not None:
             domain_window.title(f'[Domain] {os.path.basename(domain_file)}')
@@ -110,7 +113,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
                 new_file.close()
     
     def open_from_dialog():
-        global domain_file, inst_file
+        global domain_file, inst_file, viz
         master = tk.Tk()
         master.resizable(False, False)
         
@@ -123,7 +126,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         e2.grid(row=1, column=1)
         
         def select_problem():
-            global domain_file, inst_file
+            global domain_file, inst_file, viz
             domain = e1.get()
             instance = e2.get()
             
@@ -132,6 +135,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             info = manager.get_problem(domain)
             domain_file = info.get_domain()
             inst_file = info.get_instance(instance)
+            viz = info.get_visualizer()
             
             domain_window.title(f'[Domain] {os.path.basename(domain_file)}')
             domain_editor.delete(1.0, END)
@@ -243,11 +247,11 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         
     # RUN functions
     def evaluate():
-        global domain_file, inst_file, vectorized
+        global domain_file, inst_file, viz, vectorized
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, vectorized)
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, vectorized)
             
     # create menu bars
     domain_menu = Menu(domain_window)
@@ -291,11 +295,6 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     inst_edit_menu.add_command(label='Paste', command=paste_instance_text)
     inst_menu.add_cascade(label='Edit', menu=inst_edit_menu)
     
-    # run menu
-    run_menu = Menu(domain_menu, tearoff=False, activebackground='DodgerBlue')
-    run_menu.add_command(label='Evaluate', command=evaluate)
-    domain_menu.add_cascade(label='Run', menu=run_menu)
-    
     # policy menu
     policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
     policy_load_menu.add_command(label='Load No-Op', command=load_noop)
@@ -304,6 +303,10 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     policy_load_menu.add_command(label='Load JAX Planner (SLP)', command=load_jax_slp)
     policy_load_menu.add_command(label='Load JAX Planner (DRP)', command=load_jax_drp)
     policy_menu.add_cascade(label='Select', menu=policy_load_menu)
+    
+    policy_run_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
+    policy_run_menu.add_command(label='Evaluate', command=evaluate)
+    policy_menu.add_cascade(label='Run', menu=policy_run_menu)
     
     # assign menu bar to window
     domain_window.config(menu=domain_menu)
