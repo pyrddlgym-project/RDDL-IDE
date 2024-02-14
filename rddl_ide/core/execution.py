@@ -5,28 +5,32 @@ import pyRDDLGym
 from pyRDDLGym.core.policy import BaseAgent
 
     
-def evaluate_policy_fn(domain_file, inst_file, policy_editor):
+def evaluate_policy_fn(domain_file, inst_file, policy_editor, vectorized):
     
     # compile policy from given class
     policy_source = policy_editor.get(1.0, END)
-    compiled = compile(policy_source, '', 'exec')
-    exec(compiled, globals())
-    
+    try:
+        compiled = compile(policy_source, '', 'exec')
+        exec(compiled, globals())
+    except Exception as e:
+        messagebox.showerror('Python error', e)
+        raise e
+        
     # evaluation handle
-    def target(out):
+    def target():
         try:
             env = pyRDDLGym.make(domain=domain_file,
                                  instance=inst_file,
-                                 enforce_action_constraints=True)
-            policy = Policy(action_space=env.action_space,
-                            num_actions=env.max_allowed_actions)   
+                                 enforce_action_constraints=True, 
+                                 vectorized=vectorized)
+            policy = build_policy(env) 
             policy.evaluate(env, episodes=1, verbose=True, render=True)
             env.close()
+            return None
         except Exception as e:
-            out[0] = e
+            return e
     
-    err = [None] * 1
-    if err[0] is not None:
-        messagebox.showerror('RDDL error', err[0])
-        raise err[0]
-    target(err)
+    err = target()
+    if err is not None:
+        messagebox.showerror('pyRDDLGym error', err)
+        raise err

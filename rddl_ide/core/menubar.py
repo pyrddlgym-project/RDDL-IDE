@@ -57,45 +57,97 @@ instance Untitled_inst {
 '''
 
 NOOP_POLICY = '''
-class Policy(BaseAgent):
+from pyRDDLGym.core.policy import NoOpAgent
 
-    def __init__(self, action_space, num_actions):
-        self.action_space = action_space
-        self.num_actions = num_actions
-        
-    def sample_action(self, state):
-        return {}
+def build_policy(env):
+    return NoOpAgent(action_space=env.action_space,
+                     num_actions=env.max_allowed_actions)
 '''
 
 
 RANDOM_POLICY = '''
-import random
-import gymnasium as gym
+from pyRDDLGym.core.policy import RandomAgent
 
-class Policy(BaseAgent):
+def build_policy(env):
+    return RandomAgent(action_space=env.action_space,
+                       num_actions=env.max_allowed_actions)
+'''
+
+JAX_SLP_POLICY = '''
+from pyRDDLGym_jax.core.planner import (
+     _parse_config_string, _load_config, 
+     JaxBackpropPlanner, JaxOfflineController
+)
+     
+PARAMETERS = """
+    [Model]
+    logic='FuzzyLogic'
+    logic_kwargs={'weight': 10}
+    tnorm='ProductTNorm'
+    tnorm_kwargs={}
     
-    def __init__(self, action_space, num_actions):
-        self.action_space = action_space
-        self.num_actions = num_actions
-        self.rng = random.Random(None)
+    [Optimizer]
+    method='JaxStraightLinePlan'
+    method_kwargs={}
+    optimizer='rmsprop'
+    optimizer_kwargs={'learning_rate': 0.01}
+    batch_size_train=32
+    batch_size_test=32
+    
+    [Training]
+    key=42
+    epochs=30000
+    train_seconds=30    
+"""
 
-    def sample_action(self, state):
-        s = self.action_space.sample()
-        action = {}
-        selected_actions = self.rng.sample(list(s), self.num_actions)
-        for sample in selected_actions:
-            my_type = type(self.action_space[sample]).__name__
-            if my_type == "Box":
-                action[sample] = s[sample][0].item()
-            elif my_type == "Discrete":
-                action[sample] = s[sample]
-        return action
+def build_policy(env):
+    config, args = _parse_config_string(PARAMETERS)
+    planner_args, plan_kwargs, train_args = _load_config(config, args)    
+    policy_hyperparams = {action: 1.0 for action in env.model.action_fluents}
+    planner = JaxBackpropPlanner(rddl=env.model, **planner_args)
+    return JaxOfflineController(planner, policy_hyperparams=policy_hyperparams, **train_args)
+'''
+
+JAX_DRP_POLICY = '''
+from pyRDDLGym_jax.core.planner import (
+     _parse_config_string, _load_config, 
+     JaxBackpropPlanner, JaxOfflineController
+)     
+
+PARAMETERS = """
+    [Model]
+    logic='FuzzyLogic'
+    logic_kwargs={'weight': 10}
+    tnorm='ProductTNorm'
+    tnorm_kwargs={}
+    
+    [Optimizer]
+    method='JaxDeepReactivePolicy'
+    method_kwargs={'topology': [128, 128]}
+    optimizer='rmsprop'
+    optimizer_kwargs={'learning_rate': 0.01}
+    batch_size_train=32
+    batch_size_test=32
+    
+    [Training]
+    key=42
+    epochs=30000
+    train_seconds=30
+"""
+
+def build_policy(env):
+    config, args = _parse_config_string(PARAMETERS)
+    planner_args, plan_kwargs, train_args = _load_config(config, args)    
+    policy_hyperparams = {action: 1.0 for action in env.model.action_fluents}
+    planner = JaxBackpropPlanner(rddl=env.model, **planner_args)
+    return JaxOfflineController(planner, policy_hyperparams=policy_hyperparams, **train_args)
 '''
 
 
 def assign_menubar_functions(domain_window, inst_window, policy_window,
                              domain_editor, inst_editor, policy_editor):
     domain_file, inst_file = None, None
+    vectorized = False
     
     # FILE functions
     def create_domain():
@@ -245,20 +297,36 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         inst_editor.event_generate('<<Paste>>')
     
     def load_noop():
+        global vectorized
+        vectorized = False
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, NOOP_POLICY)
         
-    def load_random():
+    def load_random():        
+        global vectorized
+        vectorized = False
         policy_editor.delete(1.0, END)
         policy_editor.insert(1.0, RANDOM_POLICY)
+    
+    def load_jax_slp():
+        global vectorized
+        vectorized = True
+        policy_editor.delete(1.0, END)
+        policy_editor.insert(1.0, JAX_SLP_POLICY)
+        
+    def load_jax_drp():
+        global vectorized
+        vectorized = True
+        policy_editor.delete(1.0, END)
+        policy_editor.insert(1.0, JAX_DRP_POLICY)
         
     # RUN functions
     def evaluate():
-        global domain_file, inst_file
+        global domain_file, inst_file, vectorized
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor)
+            evaluate_policy_fn(domain_file, inst_file, policy_editor, vectorized)
             
     # create menu bars
     domain_menu = Menu(domain_window)
@@ -311,6 +379,9 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
     policy_load_menu.add_command(label='Load No-Op', command=load_noop)
     policy_load_menu.add_command(label='Load Random', command=load_random)
+    policy_load_menu.add_separator()
+    policy_load_menu.add_command(label='Load JAX Planner (SLP)', command=load_jax_slp)
+    policy_load_menu.add_command(label='Load JAX Planner (DRP)', command=load_jax_drp)
     policy_menu.add_cascade(label='Select', menu=policy_load_menu)
     
     # assign menu bar to window
