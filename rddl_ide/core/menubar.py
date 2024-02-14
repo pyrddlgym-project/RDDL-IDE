@@ -19,9 +19,9 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     
     # load template RDDL
     abs_path = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(abs_path, 'domain.rddl'), 'r') as dom_txt:
+    with open(os.path.join(abs_path, 'prefab', 'domain.rddl'), 'r') as dom_txt:
         DOMAIN_TEMPLATE = dom_txt.read()
-    with open(os.path.join(abs_path, 'instance.rddl'), 'r') as inst_txt:
+    with open(os.path.join(abs_path, 'prefab', 'instance.rddl'), 'r') as inst_txt:
         INSTANCE_TEMPLATE = inst_txt.read()
     
     # FILE functions

@@ -30,8 +30,8 @@ def assign_highlighting_rddl(text_area):
     TAGDEFS['KEYWORD'] = {'foreground': 'navy', 'background': None, 'font': ('Courier New', 12, 'bold')}
     TAGDEFS['FTYPES'] = {'foreground': 'navy', 'background': None}
     TAGDEFS['TYPES'] = {'foreground': 'navy', 'background': None}
-    TAGDEFS['NUMBER'] = {'foreground': 'gray10', 'background': None}
-    TAGDEFS['LITERAL'] = {'foreground': 'gray10', 'background': None}
+    TAGDEFS['NUMBER'] = {'foreground': 'gray12', 'background': None}
+    TAGDEFS['LITERAL'] = {'foreground': 'gray12', 'background': None}
     TAGDEFS['BUILTIN'] = {'foreground': 'blue2', 'background': None}
     TAGDEFS['AGGREGATION'] = {'foreground': 'blue2', 'background': None}
     TAGDEFS['RANDOM'] = {'foreground': 'blue2', 'background': None}
