@@ -8,9 +8,8 @@ from core.execution import evaluate_policy_fn
 
 def load_policy(name):
     abs_path = os.path.dirname(os.path.abspath(__file__))
-    file = open(os.path.join(abs_path, 'policies', name + '.py'), 'r')
-    content = file.read()
-    file.close()
+    with open(os.path.join(abs_path, 'policies', name + '.py'), 'r') as file:
+        content = file.read()
     return content    
 
 
