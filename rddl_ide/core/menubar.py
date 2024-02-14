@@ -59,9 +59,7 @@ def load_policy(name):
 
 def assign_menubar_functions(domain_window, inst_window, policy_window,
                              domain_editor, inst_editor, policy_editor):
-    domain_file, inst_file = None, None
-    viz = None
-    vectorized = False
+    domain_file, inst_file, viz, vectorized = None, None, None, False
     
     # FILE functions
     def create_domain():
@@ -78,30 +76,28 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         inst_editor.delete(1.0, END)
         inst_editor.insert(1.0, INSTANCE_TEMPLATE)
     
+    def _window_from_file(window, editor, caption, file_path):
+        if file_path is not None:
+            window.title(f'[{caption}] {os.path.basename(file_path)}')
+            editor.delete(1.0, END)
+            with open(file_path, 'r') as new_file:
+                editor.insert(1.0, new_file.read())
+                new_file.close()
+        
     def open_domain():
         global domain_file, viz    
         domain_file = fd.askopenfilename(defaultextension='.rddl',
                                          filetypes=[('RDDL File', '*.rddl*')])
         viz = None
         if domain_file == '': domain_file = None            
-        if domain_file is not None:
-            domain_window.title(f'[Domain] {os.path.basename(domain_file)}')
-            domain_editor.delete(1.0, END)
-            with open(domain_file, 'r') as new_file:
-                domain_editor.insert(1.0, new_file.read())
-                new_file.close()
+        _window_from_file(domain_window, domain_editor, 'Domain', domain_file)
     
     def open_instance():
         global inst_file        
         inst_file = fd.askopenfilename(defaultextension='.rddl',
                                        filetypes=[('RDDL File', '*.rddl*')])
         if inst_file == '': inst_file = None            
-        if inst_file is not None:
-            inst_window.title(f'[Instance] {os.path.basename(inst_file)}')
-            inst_editor.delete(1.0, END)
-            with open(inst_file, 'r') as new_file:
-                inst_editor.insert(1.0, new_file.read())
-                new_file.close()
+        _window_from_file(inst_window, inst_editor, 'Instance', inst_file)
     
     def open_from_dialog():
         global domain_file, inst_file, viz
@@ -130,18 +126,10 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             inst_file = info.get_instance(instance)
             viz = info.get_visualizer()
             
-            domain_window.title(f'[Domain] {os.path.basename(domain_file)}')
-            domain_editor.delete(1.0, END)
-            with open(domain_file, 'r') as new_file:
-                domain_editor.insert(1.0, new_file.read())
-                new_file.close()
-                
-            inst_window.title(f'[Instance] {os.path.basename(inst_file)}')
-            inst_editor.delete(1.0, END)
-            with open(inst_file, 'r') as new_file:
-                inst_editor.insert(1.0, new_file.read())
-                new_file.close()   
-            close_me()  
+            _window_from_file(domain_window, domain_editor, 'Domain', domain_file)
+            _window_from_file(inst_window, inst_editor, 'Instance', inst_file) 
+              
+            close_me()
         
         tk.Button(master, text='Load', command=select_problem).grid(
             row=3, column=0, sticky=tk.W, pady=4)
