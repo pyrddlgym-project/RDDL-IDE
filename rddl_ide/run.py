@@ -1,21 +1,7 @@
 from tkinter import Tk
 
 from core.codearea import CodeEditor
-from core.menubar import assign_menubar_functions
-
-DEFAULT_POLICY = '''
-class Policy(BaseAgent):
-
-    def __init__(self, action_space, num_actions):
-        self.action_space = action_space
-        self.num_actions = num_actions
-        
-    def sample_action(self, state):
-        return {}
-
-    def reset(self):
-        pass
-'''
+from core.menubar import assign_menubar_functions, NOOP_POLICY
 
 
 def main():
@@ -56,7 +42,7 @@ def main():
     domain_editor = CodeEditor(domain_window)
     inst_editor = CodeEditor(inst_window)
     policy_editor = CodeEditor(policy_window, rddl=False)
-    policy_editor.text.insert(1.0, DEFAULT_POLICY)
+    policy_editor.text.insert(1.0, NOOP_POLICY)
     
     # menu bars
     assign_menubar_functions(domain_window, inst_window, policy_window, 

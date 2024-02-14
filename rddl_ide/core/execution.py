@@ -1,13 +1,14 @@
 from threading import Thread
-from tkinter import messagebox 
+from tkinter import messagebox, END
 
 import pyRDDLGym
 from pyRDDLGym.core.policy import BaseAgent
 
     
-def evaluate_policy_fn(domain_file, inst_file, policy_source):
+def evaluate_policy_fn(domain_file, inst_file, policy_editor):
     
     # compile policy from given class
+    policy_source = policy_editor.get(1.0, END)
     compiled = compile(policy_source, '', 'exec')
     exec(compiled, globals())
     

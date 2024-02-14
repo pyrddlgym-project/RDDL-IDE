@@ -56,8 +56,44 @@ instance Untitled_inst {
 }
 '''
 
+NOOP_POLICY = '''
+class Policy(BaseAgent):
 
-def assign_menubar_functions(domain_window, inst_window, policy_window, 
+    def __init__(self, action_space, num_actions):
+        self.action_space = action_space
+        self.num_actions = num_actions
+        
+    def sample_action(self, state):
+        return {}
+'''
+
+
+RANDOM_POLICY = '''
+import random
+import gymnasium as gym
+
+class Policy(BaseAgent):
+    
+    def __init__(self, action_space, num_actions):
+        self.action_space = action_space
+        self.num_actions = num_actions
+        self.rng = random.Random(None)
+
+    def sample_action(self, state):
+        s = self.action_space.sample()
+        action = {}
+        selected_actions = self.rng.sample(list(s), self.num_actions)
+        for sample in selected_actions:
+            my_type = type(self.action_space[sample]).__name__
+            if my_type == "Box":
+                action[sample] = s[sample][0].item()
+            elif my_type == "Discrete":
+                action[sample] = s[sample]
+        return action
+'''
+
+
+def assign_menubar_functions(domain_window, inst_window, policy_window,
                              domain_editor, inst_editor, policy_editor):
     domain_file, inst_file = None, None
     
@@ -103,6 +139,8 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     def open_from_dialog():
         global domain_file, inst_file
         master = tk.Tk()
+        master.resizable(False, False)
+        
         tk.Label(master, text="Domain").grid(row=0)
         tk.Label(master, text="Instance").grid(row=1)
         
@@ -206,18 +244,26 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     def paste_instance_text():
         inst_editor.event_generate('<<Paste>>')
     
+    def load_noop():
+        policy_editor.delete(1.0, END)
+        policy_editor.insert(1.0, NOOP_POLICY)
+        
+    def load_random():
+        policy_editor.delete(1.0, END)
+        policy_editor.insert(1.0, RANDOM_POLICY)
+        
     # RUN functions
     def evaluate():
         global domain_file, inst_file
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            policy_source = policy_editor.get(1.0, END)
-            evaluate_policy_fn(domain_file, inst_file, policy_source)
+            evaluate_policy_fn(domain_file, inst_file, policy_editor)
             
     # create menu bars
     domain_menu = Menu(domain_window)
     inst_menu = Menu(inst_window)
+    policy_menu = Menu(policy_window)
     
     # domain file menu
     domain_file_menu = Menu(domain_menu, tearoff=False, activebackground='DodgerBlue')
@@ -261,9 +307,16 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     run_menu.add_command(label='Evaluate', command=evaluate)
     domain_menu.add_cascade(label='Run', menu=run_menu)
     
+    # policy menu
+    policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
+    policy_load_menu.add_command(label='Load No-Op', command=load_noop)
+    policy_load_menu.add_command(label='Load Random', command=load_random)
+    policy_menu.add_cascade(label='Select', menu=policy_load_menu)
+    
     # assign menu bar to window
     domain_window.config(menu=domain_menu)
     inst_window.config(menu=inst_menu)
+    policy_window.config(menu=policy_menu)
     
     return domain_menu, inst_menu
 
