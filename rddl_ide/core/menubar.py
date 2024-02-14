@@ -98,19 +98,22 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             row=3, column=0, sticky=tk.W, pady=4)
         tk.Button(master, text='Close', command=close_me).grid(
             row=3, column=1, sticky=tk.W, pady=4)
-        
+    
+    def _window_to_file(window, editor, caption, file_path):
+        if file_path is not None: 
+            with open(file_path, 'w') as new_file:
+                new_file.write(editor.get(1.0, END))
+                new_file.close()
+            window.title(f'[{caption}] {os.path.basename(file_path)}')
+    
     def save_domain():
         global domain_file        
         if domain_file is None:
             domain_file = fd.asksaveasfilename(initialfile='domain.rddl',
                                                defaultextension='.rddl',
                                                filetypes=[('RDDL File', '*.rddl*')])
-            if domain_file == '': domain_file = None            
-        if domain_file is not None: 
-            with open(domain_file, 'w') as new_file:
-                new_file.write(domain_editor.get(1.0, END))
-                new_file.close()
-            domain_window.title(f'[Domain] {os.path.basename(domain_file)}')
+            if domain_file == '': domain_file = None 
+        _window_to_file(domain_window, domain_editor, 'Domain', domain_file)
         
     def save_instance():
         global inst_file        
@@ -118,12 +121,8 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             inst_file = fd.asksaveasfilename(initialfile='instance.rddl',
                                              defaultextension='.rddl',
                                              filetypes=[('RDDL File', '*.rddl*')])
-            if inst_file == '': inst_file = None            
-        if inst_file is not None: 
-            with open(inst_file, 'w') as new_file:
-                new_file.write(inst_editor.get(1.0, END))
-                new_file.close()
-            inst_window.title(f'[Instance] {os.path.basename(inst_file)}')
+            if inst_file == '': inst_file = None 
+        _window_to_file(inst_window, inst_editor, 'Instance', inst_file)
     
     def save_domain_as():
         global domain_file        
