@@ -10,6 +10,10 @@ This directory provides:
 supports training, evaluation and visualization of various planners 
 (e.g. [JAX planner](https://github.com/pyrddlgym-project/pyRDDLGym-jax), [Gurobi planner](https://github.com/pyrddlgym-project/pyRDDLGym-gurobi), [RL](https://github.com/pyrddlgym-project/pyRDDLGym-rl)), and your own custom policies in a single mouse click!
 
+<p align="center">
+<img src="screenshot.png" margin=0/>
+</p>
+
 ## Contents
 - [Installation](#installation)
 - [Running the IDE](#running-the-ide)
