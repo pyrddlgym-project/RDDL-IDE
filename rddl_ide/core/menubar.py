@@ -4,6 +4,7 @@ from tkinter import END, Menu
 import tkinter.filedialog as fd
 
 from core.execution import evaluate_policy_fn
+from core.highlighting import closest_substring
 
 
 def load_policy(name):
@@ -192,7 +193,13 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         save_domain()
         save_instance()
         if domain_file is not None and inst_file is not None:
-            evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record)
+            domain_editor.tag_delete('showerror')
+            query = evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record)
+            if query is not None:
+                corpus = domain_editor.get(1.0, END)
+                start, end = closest_substring(corpus, query)                
+                domain_editor.tag_add('showerror', f'1.0+{start}c', f'1.0+{end}c')
+                domain_editor.tag_config('showerror', background='yellow')
     
     def evaluate():
         _evaluate(None)

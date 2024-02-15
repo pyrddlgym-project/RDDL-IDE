@@ -1,3 +1,4 @@
+from difflib import SequenceMatcher
 import re
 import idlelib.colorizer as ic
 import idlelib.percolator as ip
@@ -47,4 +48,57 @@ def assign_highlighting_rddl(text_area):
 def assign_highlighting_python(text_area):
     cd = ic.ColorDelegator()
     ip.Percolator(text_area).insertfilter(cd)
+
+
+def closest_substring(corpus, query, case_sensitive=True):
+    step = max(1, len(query) * 3 // 4 - 1)
+    flex = max(1, len(query) // 3 - 1)
     
+    def _match(a, b):
+        return SequenceMatcher(None, a, b).ratio()
+
+    def scan_corpus(step):
+        match_values = []
+        m = 0
+        while m + qlen - step <= len(corpus):
+            match_values.append(_match(query, corpus[m: m - 1 + qlen]))
+            m += step
+        return match_values
+
+    def index_max(v):
+        return max(range(len(v)), key=v.__getitem__)
+
+    def adjust_left_right_positions():
+        p_l, bp_l = [pos] * 2
+        p_r, bp_r = [pos + qlen] * 2
+        bmv_l = match_values[p_l // step]
+        bmv_r = match_values[p_l // step]
+        for f in range(flex):
+            ll = _match(query, corpus[p_l - f: p_r])
+            if ll > bmv_l:
+                bmv_l = ll
+                bp_l = p_l - f
+            lr = _match(query, corpus[p_l + f: p_r])
+            if lr > bmv_l:
+                bmv_l = lr
+                bp_l = p_l + f
+            rl = _match(query, corpus[p_l: p_r - f])
+            if rl > bmv_r:
+                bmv_r = rl
+                bp_r = p_r - f
+            rr = _match(query, corpus[p_l: p_r + f])
+            if rr > bmv_r:
+                bmv_r = rr
+                bp_r = p_r + f
+        return bp_l, bp_r, _match(query, corpus[bp_l: bp_r])
+
+    if not case_sensitive:
+        query = query.lower()
+        corpus = corpus.lower()
+    qlen = len(query)
+    if flex >= qlen / 2:
+        flex = 3
+    match_values = scan_corpus(step)
+    pos = index_max(match_values) * step
+    pos_left, pos_right, match_value = adjust_left_right_positions()
+    return pos_left, pos_right

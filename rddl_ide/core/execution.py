@@ -1,3 +1,4 @@
+import traceback
 from tkinter import messagebox, END
 
 import pyRDDLGym
@@ -13,8 +14,8 @@ def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record):
         compiled = compile(policy_source, '', 'exec')
         exec(compiled, globals())
     except Exception as e:
+        print(traceback.format_exc())
         messagebox.showerror('Python error', e)
-        raise e
         
     # evaluation handle
     def target():
@@ -31,9 +32,23 @@ def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record):
             env.close()
             return None
         except Exception as e:
+            print(traceback.format_exc())
             return e
     
+    # error handler
     err = target()
     if err is not None:
         messagebox.showerror('pyRDDLGym error', err)
-        raise err
+    
+    err = str(err)
+    if '>>' in err:
+        start = err.index('>>')
+        if 'Please check expression' in err:
+            end = err.index('Please check expression')
+        else:
+            end = len(err) - 1
+        message = err[start:end].strip()
+    else:
+        message = None
+    return message
+    
