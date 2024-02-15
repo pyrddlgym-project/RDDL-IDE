@@ -31,8 +31,8 @@ def assign_highlighting_rddl(text_area):
     TAGDEFS['KEYWORD'] = {'foreground': 'navy', 'background': None, 'font': ('Courier New', 12, 'bold')}
     TAGDEFS['FTYPES'] = {'foreground': 'navy', 'background': None}
     TAGDEFS['TYPES'] = {'foreground': 'navy', 'background': None}
-    TAGDEFS['NUMBER'] = {'foreground': 'gray12', 'background': None}
-    TAGDEFS['LITERAL'] = {'foreground': 'gray12', 'background': None}
+    TAGDEFS['NUMBER'] = {'foreground': 'brown4', 'background': None}
+    TAGDEFS['LITERAL'] = {'foreground': 'brown4', 'background': None}
     TAGDEFS['BUILTIN'] = {'foreground': 'blue2', 'background': None}
     TAGDEFS['AGGREGATION'] = {'foreground': 'blue2', 'background': None}
     TAGDEFS['RANDOM'] = {'foreground': 'blue2', 'background': None}
@@ -58,15 +58,11 @@ def closest_substring(corpus, query, case_sensitive=True):
         return SequenceMatcher(None, a, b).ratio()
 
     def scan_corpus(step):
-        match_values = []
-        m = 0
+        match_values, m = [], 0
         while m + qlen - step <= len(corpus):
             match_values.append(_match(query, corpus[m: m - 1 + qlen]))
             m += step
         return match_values
-
-    def index_max(v):
-        return max(range(len(v)), key=v.__getitem__)
 
     def adjust_left_right_positions():
         p_l, bp_l = [pos] * 2
@@ -76,29 +72,22 @@ def closest_substring(corpus, query, case_sensitive=True):
         for f in range(flex):
             ll = _match(query, corpus[p_l - f: p_r])
             if ll > bmv_l:
-                bmv_l = ll
-                bp_l = p_l - f
+                bmv_l, bp_l = ll, p_l - f
             lr = _match(query, corpus[p_l + f: p_r])
             if lr > bmv_l:
-                bmv_l = lr
-                bp_l = p_l + f
+                bmv_l, bp_l = lr, p_l + f
             rl = _match(query, corpus[p_l: p_r - f])
             if rl > bmv_r:
-                bmv_r = rl
-                bp_r = p_r - f
+                bmv_r, bp_r = rl, p_r - f
             rr = _match(query, corpus[p_l: p_r + f])
             if rr > bmv_r:
-                bmv_r = rr
-                bp_r = p_r + f
-        return bp_l, bp_r, _match(query, corpus[bp_l: bp_r])
+                bmv_r, bp_r = rr, p_r + f
+        return bp_l, bp_r
 
     if not case_sensitive:
-        query = query.lower()
-        corpus = corpus.lower()
+        query, corpus = query.lower(), corpus.lower()
     qlen = len(query)
-    if flex >= qlen / 2:
-        flex = 3
-    match_values = scan_corpus(step)
-    pos = index_max(match_values) * step
-    pos_left, pos_right, match_value = adjust_left_right_positions()
-    return pos_left, pos_right
+    if flex >= qlen / 2: flex = 3
+    match_values = scan_corpus(step)    
+    pos = max(range(len(match_values)), key=match_values.__getitem__) * step
+    return adjust_left_right_positions()

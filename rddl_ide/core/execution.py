@@ -3,8 +3,33 @@ from tkinter import messagebox, END
 
 import pyRDDLGym
 from pyRDDLGym.core.policy import BaseAgent
+from pyRDDLGym.core.debug.decompiler import RDDLDecompiler
 from pyRDDLGym.core.visualizer.movie import MovieGenerator
 
+
+def _handle_error_message(err):
+    
+    # syntax error
+    if '\033[4m' in err and '\033[0m' in err:
+        start = err.index('\033[4m') + len('\033[4m')
+        end = err.index('\033[0m')
+        err = err[start:end].strip()
+    
+    # compiler error in general
+    elif '>>' in err:
+        start = err.index('>>') + len('>>')
+        err = err[start:]    
+        if 'Please check expression' in err:
+            end = err.index('Please check expression')
+            err = err[:end]
+        err = err.strip()
+    
+    # do not highlight
+    else:
+        err = None
+    
+    return err
+    
     
 def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record):
     
@@ -39,21 +64,5 @@ def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record):
     err = target()
     if err is not None:
         messagebox.showerror('pyRDDLGym error', err)
-    
-    # for highlighting errors in the code window
-    err = str(err)
-    if '>>' in err:
-        start = err.index('>>') + len('>>')
-        err = err[start:]
-        if '\033[4m' in err and '\033[0m' in err:
-            start = err.index('\033[4m') + len('\033[4m')
-            end = err.index('\033[0m')
-            err = err[start:end]
-        if 'Please check expression' in err:
-            end = err.index('Please check expression')
-            err = err[:end]
-        err = err.strip()
-    else:
-        err = None
-    return err
-    
+    return _handle_error_message(str(err))
+
