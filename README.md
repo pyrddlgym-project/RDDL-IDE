@@ -4,11 +4,10 @@ Author: [Mike Gimelfarb](https://mike-gimelfarb.github.io)
 
 Graphical integrated development environment for RDDL.
 
-This directory provides:
-1. an IDE specifically designed for reading and writing RDDL descriptions
-2. comprehensive integration of the pyRDDLGym [ecosystem](https://github.com/pyrddlgym-project), 
-supports training, evaluation and visualization of various planners 
-(e.g. [JAX planner](https://github.com/pyrddlgym-project/pyRDDLGym-jax), [Gurobi planner](https://github.com/pyrddlgym-project/pyRDDLGym-gurobi), [RL](https://github.com/pyrddlgym-project/pyRDDLGym-rl)), and your own custom policies in a single mouse click!
+This directory provides an IDE:
+1. specifically designed for reading and writing RDDL descriptions (supports syntax highlighting and some debugging features)
+2. with support for running, visualizing and recording policies
+3. with native support for the pyRDDLGym [ecosystem](https://github.com/pyrddlgym-project) and planning baselines (e.g. [JAX planner](https://github.com/pyrddlgym-project/pyRDDLGym-jax), [Gurobi planner](https://github.com/pyrddlgym-project/pyRDDLGym-gurobi), [RL](https://github.com/pyrddlgym-project/pyRDDLGym-rl)).
 
 <p align="center">
 <img src="screenshot.png" margin=0/>
