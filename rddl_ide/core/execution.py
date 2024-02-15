@@ -1,4 +1,3 @@
-from threading import Thread
 from tkinter import messagebox, END
 
 import pyRDDLGym

@@ -25,7 +25,8 @@ setup(
       url="https://github.com/pyrddlgym-project/rddl-ide",
       packages=find_packages(),
       install_requires=[
-          'pyRDDLGym>=2.0'
+          'pyRDDLGym>=2.0',
+          'tk'
         ],
       python_requires=">=3.8",
       package_data={'': ['*.cfg', '*.rddl']},

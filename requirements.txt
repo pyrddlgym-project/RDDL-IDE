@@ -1,1 +1,2 @@
 pyRDDLGym>=2.0
+tk
