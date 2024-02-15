@@ -94,6 +94,9 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             _window_from_file(inst_window, inst_editor, 'Instance', inst_file) 
               
             close_me()
+            
+            # do not override automatically
+            domain_file, inst_file = None, None
         
         tk.Button(master, text='Load', command=select_problem).grid(
             row=3, column=0, sticky=tk.W, pady=4)
