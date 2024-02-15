@@ -40,15 +40,20 @@ def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record):
     if err is not None:
         messagebox.showerror('pyRDDLGym error', err)
     
+    # for highlighting errors in the code window
     err = str(err)
     if '>>' in err:
-        start = err.index('>>')
+        start = err.index('>>') + len('>>')
+        err = err[start:]
+        if '\033[4m' in err and '\033[0m' in err:
+            start = err.index('\033[4m') + len('\033[4m')
+            end = err.index('\033[0m')
+            err = err[start:end]
         if 'Please check expression' in err:
             end = err.index('Please check expression')
-        else:
-            end = len(err) - 1
-        message = err[start:end].strip()
+            err = err[:end]
+        err = err.strip()
     else:
-        message = None
-    return message
+        err = None
+    return err
     

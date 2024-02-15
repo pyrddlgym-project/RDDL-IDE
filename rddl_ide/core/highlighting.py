@@ -51,7 +51,7 @@ def assign_highlighting_python(text_area):
 
 
 def closest_substring(corpus, query, case_sensitive=True):
-    step = max(1, len(query) * 3 // 4 - 1)
+    step = min(4, max(1, len(query) * 3 // 4 - 1))
     flex = max(1, len(query) // 3 - 1)
     
     def _match(a, b):
