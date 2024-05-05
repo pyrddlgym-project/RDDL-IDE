@@ -1,5 +1,5 @@
 from tkinter import Text, Scrollbar, \
-    LEFT, RIGHT, BOTH, NONE, HORIZONTAL, VERTICAL, BOTTOM, X, Y, END
+    LEFT, RIGHT, BOTH, NONE, HORIZONTAL, VERTICAL, BOTTOM, X, Y, END, font
 
 from core.highlighting import assign_highlighting_rddl, assign_highlighting_python
 
@@ -30,11 +30,15 @@ class TextLineNumbers(Text):
 
 class CodeEditor:
     
-    def __init__(self, window, font=('Courier New', 12), rddl=True):
-        text_area = Text(window, font=font, wrap=NONE)
+    def __init__(self, window, rddl=True):
+        if 'Consolas' in font.names() or 'Consolas' in font.families():
+            my_font = 'Consolas'
+        else:
+            my_font = 'Courier'
+        text_area = Text(window, font=(my_font, 12), wrap=NONE)
         self.text = text_area
         
-        ln = TextLineNumbers(window, text_area, width=3, font=font)
+        ln = TextLineNumbers(window, text_area, width=3, font=(my_font, 12))
         ln.pack(side=LEFT, fill=BOTH)
         text_area.pack(expand=True, fill=BOTH)
         
