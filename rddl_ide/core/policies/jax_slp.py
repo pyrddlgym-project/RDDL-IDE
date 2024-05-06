@@ -21,7 +21,8 @@ PARAMETERS = """
     [Training]
     key=42
     epochs=30000
-    train_seconds=30    
+    train_seconds=60    
+    plot_step=100
 """
 
 def build_policy(env):
