@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import END, Menu
+from tkinter import END, Menu, OptionMenu, StringVar
 import tkinter.filedialog as fd
 
 from core.execution import evaluate_policy_fn
@@ -68,9 +68,15 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         master = tk.Tk()
         master.resizable(False, False)
         
+        from rddlrepository.core.manager import RDDLRepoManager
+        domain_options = RDDLRepoManager().list_problems()
+        domain_var = StringVar(master)
+        domain_var.set(domain_options[0])
+        domain_dropdown = OptionMenu(master, domain_var, *domain_options)
+
         tk.Label(master, text="Domain").grid(row=0)
         tk.Label(master, text="Instance").grid(row=1)
-        e1 = tk.Entry(master)
+        e1 = domain_dropdown
         e2 = tk.Entry(master)
         e1.grid(row=0, column=1)
         e2.grid(row=1, column=1)
@@ -81,9 +87,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             
         def select_problem():
             global domain_file, inst_file, viz
-            domain, instance = e1.get(), e2.get()
-            
-            from rddlrepository.core.manager import RDDLRepoManager
+            domain, instance = domain_var.get(), e2.get()
             manager = RDDLRepoManager()
             info = manager.get_problem(domain)
             domain_file = info.get_domain()
