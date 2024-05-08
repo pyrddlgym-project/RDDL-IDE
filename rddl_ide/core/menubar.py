@@ -1,15 +1,59 @@
 import os
-import tkinter as tk
-from tkinter import END, Menu, OptionMenu, StringVar
-import tkinter.filedialog as fd
+from difflib import SequenceMatcher
+from customtkinter import CTkToplevel, CTkOptionMenu, StringVar, CTkLabel, CTkButton, CTkEntry, CTkFrame
+from customtkinter import filedialog as fd
+from CTkMenuBar import CTkMenuBar, CustomDropdownMenu
+from tkinter import Menu
 
 from core.execution import evaluate_policy_fn
-from core.highlighting import closest_substring
+
+
+def closest_substring(corpus, query, case_sensitive=True):
+    step = min(4, max(1, len(query) * 3 // 4 - 1))
+    flex = max(1, len(query) // 3 - 1)
+    
+    def _match(a, b):
+        return SequenceMatcher(None, a, b).ratio()
+
+    def scan_corpus(step):
+        match_values, m = [], 0
+        while m + qlen - step <= len(corpus):
+            match_values.append(_match(query, corpus[m: m - 1 + qlen]))
+            m += step
+        return match_values
+
+    def adjust_left_right_positions():
+        p_l, bp_l = [pos] * 2
+        p_r, bp_r = [pos + qlen] * 2
+        bmv_l = match_values[p_l // step]
+        bmv_r = match_values[p_l // step]
+        for f in range(flex):
+            ll = _match(query, corpus[p_l - f: p_r])
+            if ll > bmv_l:
+                bmv_l, bp_l = ll, p_l - f
+            lr = _match(query, corpus[p_l + f: p_r])
+            if lr > bmv_l:
+                bmv_l, bp_l = lr, p_l + f
+            rl = _match(query, corpus[p_l: p_r - f])
+            if rl > bmv_r:
+                bmv_r, bp_r = rl, p_r - f
+            rr = _match(query, corpus[p_l: p_r + f])
+            if rr > bmv_r:
+                bmv_r, bp_r = rr, p_r + f
+        return bp_l, bp_r
+
+    if not case_sensitive:
+        query, corpus = query.lower(), corpus.lower()
+    qlen = len(query)
+    if flex >= qlen / 2: flex = 3
+    match_values = scan_corpus(step)    
+    pos = max(range(len(match_values)), key=match_values.__getitem__) * step
+    return adjust_left_right_positions()
 
 
 def load_policy(name):
     abs_path = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(abs_path, 'policies', name + '.py'), 'r') as file:
+    with open(os.path.join(abs_path, 'prefab', 'policies', name + '.py'), 'r') as file:
         content = file.read()
     return content    
 
@@ -30,23 +74,26 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         global domain_file, viz
         domain_file, viz = None, None
         domain_window.title('[Domain] Untitled')
-        domain_editor.delete(1.0, END)
+        domain_editor.delete(1.0, 'end')
         domain_editor.insert(1.0, DOMAIN_TEMPLATE)
+        domain_editor.apply()
         
     def create_instance():
         global inst_file
         inst_file = None
         inst_window.title('[Instance] Untitled')
-        inst_editor.delete(1.0, END)
+        inst_editor.delete(1.0, 'end')
         inst_editor.insert(1.0, INSTANCE_TEMPLATE)
+        inst_editor.apply()
     
     def _window_from_file(window, editor, caption, file_path):
         if file_path is not None:
             window.title(f'[{caption}] {os.path.basename(file_path)}')
-            editor.delete(1.0, END)
+            editor.delete(1.0, 'end')
             with open(file_path, 'r') as new_file:
                 editor.insert(1.0, new_file.read())
                 new_file.close()
+            editor.apply()
         
     def open_domain():
         global domain_file, viz    
@@ -65,19 +112,19 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     
     def open_from_dialog():
         global domain_file, inst_file, viz
-        master = tk.Tk()
-        master.resizable(False, False)
+        master = CTkToplevel(domain_window)
         
         from rddlrepository.core.manager import RDDLRepoManager
         domain_options = RDDLRepoManager().list_problems()
         domain_var = StringVar(master)
         domain_var.set(domain_options[0])
-        domain_dropdown = OptionMenu(master, domain_var, *domain_options)
+        domain_dropdown = CTkOptionMenu(
+            master, variable=domain_var, values=domain_options)
 
-        tk.Label(master, text="Domain").grid(row=0)
-        tk.Label(master, text="Instance").grid(row=1)
+        CTkLabel(master, text="Domain").grid(row=0)
+        CTkLabel(master, text="Instance").grid(row=1)
         e1 = domain_dropdown
-        e2 = tk.Entry(master)
+        e2 = CTkEntry(master, placeholder_text='0')
         e1.grid(row=0, column=1)
         e2.grid(row=1, column=1)
         
@@ -99,15 +146,15 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             close_me()
             domain_file, inst_file = None, None
         
-        tk.Button(master, text='Load', command=select_problem).grid(
-            row=3, column=0, sticky=tk.W, pady=4)
-        tk.Button(master, text='Close', command=close_me).grid(
-            row=3, column=1, sticky=tk.W, pady=4)
+        CTkButton(master, text='Load', command=select_problem).grid(
+            row=3, column=0, sticky='w', pady=4)
+        CTkButton(master, text='Close', command=close_me).grid(
+            row=3, column=1, sticky='w', pady=4)
     
     def _window_to_file(window, editor, caption, file_path):
         if file_path is not None: 
             with open(file_path, 'w') as new_file:
-                new_file.write(editor.get(1.0, END))
+                new_file.write(editor.get(1.0, 'end'))
                 new_file.close()
             window.title(f'[{caption}] {os.path.basename(file_path)}')
     
@@ -164,9 +211,10 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     
     # policy SELECT functions
     def _fill_policy_window(policy_name, caption):
-        policy_editor.delete(1.0, END)
+        policy_editor.delete(1.0, 'end')
         policy_editor.insert(1.0, load_policy(policy_name))
         policy_window.title(f'[Policy] {caption}')
+        policy_editor.apply()
     
     def load_noop():
         _fill_policy_window('noop', 'NoOp')
@@ -200,7 +248,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
             domain_editor.tag_delete('showerror')
             query = evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record)
             if query is not None:
-                corpus = domain_editor.get(1.0, END)
+                corpus = domain_editor.get(1.0, 'end')
                 start, end = closest_substring(corpus, query)                
                 domain_editor.tag_add('showerror', f'1.0+{start}c', f'1.0+{end}c')
                 domain_editor.tag_config('showerror', background='yellow')
@@ -211,70 +259,64 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     def record():
         _evaluate(fd.askdirectory())
         
-    # create menu bars
-    domain_menu = Menu(domain_window)
-    inst_menu = Menu(inst_window)
-    policy_menu = Menu(policy_window)
+    # domain menu bars
+    domain_menu = CTkMenuBar(domain_editor)
+    domain_menu_file = domain_menu.add_cascade("File")
+    domain_menu_file_drop = CustomDropdownMenu(widget=domain_menu_file)
+    domain_menu_file_drop.add_option(option='New Domain', command=create_domain)
+    domain_menu_file_drop.add_separator()
+    domain_menu_file_drop.add_option(option='Load Domain from Repository...', command=open_from_dialog)
+    domain_menu_file_drop.add_option(option='Load Domain from File...', command=open_domain)
+    domain_menu_file_drop.add_separator()
+    domain_menu_file_drop.add_option(option='Save Domain', command=save_domain)
+    domain_menu_file_drop.add_option(option='Save Domain As...', command=save_domain_as)
+    domain_menu_file_drop.add_separator()
+    domain_menu_file_drop.add_option(option='Exit', command=exit_application)
     
-    # domain file menu
-    domain_file_menu = Menu(domain_menu, tearoff=False, activebackground='DodgerBlue')
-    domain_file_menu.add_command(label='New Domain', command=create_domain)
-    domain_file_menu.add_separator()
-    domain_file_menu.add_command(label='Load Domain from Repository...', command=open_from_dialog)
-    domain_file_menu.add_command(label='Load Domain from File...', command=open_domain)
-    domain_file_menu.add_separator()
-    domain_file_menu.add_command(label='Save Domain', command=save_domain)
-    domain_file_menu.add_command(label='Save Domain As...', command=save_domain_as)
-    domain_file_menu.add_separator()
-    domain_file_menu.add_command(label='Exit', command=exit_application)
-    domain_menu.add_cascade(label='File', menu=domain_file_menu)
+    # instance menu bar
+    inst_menu = CTkMenuBar(inst_window)
+    inst_menu_file = inst_menu.add_cascade("File")
+        
     
-    # domain edit menu
-    domain_edit_menu = Menu(domain_menu, tearoff=False, activebackground='DodgerBlue')
-    domain_edit_menu.add_command(label='Copy', command=copy_domain_text)
-    domain_edit_menu.add_command(label='Cut', command=cut_domain_text)
-    domain_edit_menu.add_command(label='Paste', command=paste_domain_text)
-    domain_menu.add_cascade(label='Edit', menu=domain_edit_menu)
-    
-    # instance file menu
-    inst_file_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
-    inst_file_menu.add_command(label='New Instance', command=create_instance)
-    inst_file_menu.add_separator()
-    inst_file_menu.add_command(label='Load Instance from File...', command=open_instance)
-    inst_file_menu.add_separator()
-    inst_file_menu.add_command(label='Save Instance', command=save_instance)
-    inst_file_menu.add_command(label='Save Instance As...', command=save_instance_as)
-    inst_menu.add_cascade(label='File', menu=inst_file_menu)
-    
-    # instance edit menu
-    inst_edit_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
-    inst_edit_menu.add_command(label='Copy', command=copy_instance_text)
-    inst_edit_menu.add_command(label='Cut', command=cut_instance_text)
-    inst_edit_menu.add_command(label='Paste', command=paste_instance_text)
-    inst_menu.add_cascade(label='Edit', menu=inst_edit_menu)
-    
-    # policy load menu
-    policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
-    policy_load_menu.add_command(label='No-Op', command=load_noop)
-    policy_load_menu.add_command(label='Random', command=load_random)
-    policy_load_menu.add_separator()
-    policy_load_menu.add_command(label='JAX Planner (SLP)', command=load_jax_slp)
-    policy_load_menu.add_command(label='JAX Planner (SLP+Replan)', command=load_jax_replan)
-    policy_load_menu.add_command(label='JAX Planner (DRP)', command=load_jax_drp)
-    policy_load_menu.add_separator()
-    policy_load_menu.add_command(label='Gurobi Planner (SLP+Replan)', command=load_gurobi_replan)
-    policy_load_menu.add_separator()
-    policy_load_menu.add_command(label='Stable-Baselines3 (PPO)', command=load_sb3_ppo)
-    policy_menu.add_cascade(label='Select', menu=policy_load_menu)
-    
-    # policy run menu
-    policy_run_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
-    policy_run_menu.add_command(label='Evaluate', command=evaluate)
-    policy_run_menu.add_command(label='Record', command=record)
-    policy_menu.add_cascade(label='Run', menu=policy_run_menu)
-    
-    # assign menu bar to window
-    domain_window.config(menu=domain_menu)
-    inst_window.config(menu=inst_menu)
-    policy_window.config(menu=policy_menu)
+    # # instance file menu
+    # inst_file_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
+    # inst_file_menu.add_command(label='New Instance', command=create_instance)
+    # inst_file_menu.add_separator()
+    # inst_file_menu.add_command(label='Load Instance from File...', command=open_instance)
+    # inst_file_menu.add_separator()
+    # inst_file_menu.add_command(label='Save Instance', command=save_instance)
+    # inst_file_menu.add_command(label='Save Instance As...', command=save_instance_as)
+    # inst_menu.add_cascade(label='File', menu=inst_file_menu)
+    #
+    # # instance edit menu
+    # inst_edit_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
+    # inst_edit_menu.add_command(label='Copy', command=copy_instance_text)
+    # inst_edit_menu.add_command(label='Cut', command=cut_instance_text)
+    # inst_edit_menu.add_command(label='Paste', command=paste_instance_text)
+    # inst_menu.add_cascade(label='Edit', menu=inst_edit_menu)
+    #
+    # # policy load menu
+    # policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
+    # policy_load_menu.add_command(label='No-Op', command=load_noop)
+    # policy_load_menu.add_command(label='Random', command=load_random)
+    # policy_load_menu.add_separator()
+    # policy_load_menu.add_command(label='JAX Planner (SLP)', command=load_jax_slp)
+    # policy_load_menu.add_command(label='JAX Planner (SLP+Replan)', command=load_jax_replan)
+    # policy_load_menu.add_command(label='JAX Planner (DRP)', command=load_jax_drp)
+    # policy_load_menu.add_separator()
+    # policy_load_menu.add_command(label='Gurobi Planner (SLP+Replan)', command=load_gurobi_replan)
+    # policy_load_menu.add_separator()
+    # policy_load_menu.add_command(label='Stable-Baselines3 (PPO)', command=load_sb3_ppo)
+    # policy_menu.add_cascade(label='Select', menu=policy_load_menu)
+    #
+    # # policy run menu
+    # policy_run_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
+    # policy_run_menu.add_command(label='Evaluate', command=evaluate)
+    # policy_run_menu.add_command(label='Record', command=record)
+    # policy_menu.add_cascade(label='Run', menu=policy_run_menu)
+    #
+    # # assign menu bar to window
+    # domain_window.config(menu=domain_menu)
+    # inst_window.config(menu=inst_menu)
+    # policy_window.config(menu=policy_menu)
 
