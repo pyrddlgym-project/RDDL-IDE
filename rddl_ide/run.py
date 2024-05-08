@@ -1,5 +1,6 @@
 import customtkinter
-    
+from CTkMenuBar import CTkMenuBar
+
 from core.codearea import CodeEditor
 from core.menubar import assign_menubar_functions
 
@@ -39,12 +40,17 @@ def main():
     policy_window.rowconfigure(0, weight=1)
     
     # text editors
+    domain_menu = CTkMenuBar(domain_window)
+    inst_menu = CTkMenuBar(inst_window)
+    policy_menu = CTkMenuBar(policy_window)
     domain_editor = CodeEditor(domain_window, 'rddl')
     inst_editor = CodeEditor(inst_window, 'rddl')
     policy_editor = CodeEditor(policy_window, 'python')
     
     # menu bars
-    assign_menubar_functions(domain_window, inst_window, policy_window,
+    assign_menubar_functions(domain_menu, domain_window, 
+                             inst_menu, inst_window, 
+                             policy_menu, policy_window,
                              domain_editor.text, inst_editor.text, policy_editor.text)
     domain_window.update()
     domain_window.mainloop()

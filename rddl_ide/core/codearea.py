@@ -115,8 +115,8 @@ class CodeEditor:
         self.text = text_area
         
         ln = TextLineNumbers(window, text_area, width=3, font=(my_font, 12))
-        #ln.pack(side='left', fill='both')
-        #text_area.pack(expand=True, fill='both')
+        ln.pack(side='left', fill='both')
+        text_area.pack(expand=True, fill='both')
         
         _ = customtkinter.CTkScrollbar(window, command=text_area.xview)
         _ = customtkinter.CTkScrollbar(window, command=text_area.yview)

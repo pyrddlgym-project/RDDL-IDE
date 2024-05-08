@@ -58,7 +58,8 @@ def load_policy(name):
     return content    
 
 
-def assign_menubar_functions(domain_window, inst_window, policy_window,
+def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window, 
+                             policy_menu, policy_window,
                              domain_editor, inst_editor, policy_editor):
     domain_file, inst_file, viz = None, None, None
     
@@ -260,7 +261,6 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
         _evaluate(fd.askdirectory())
         
     # domain menu bars
-    domain_menu = CTkMenuBar(domain_editor)
     domain_menu_file = domain_menu.add_cascade("File")
     domain_menu_file_drop = CustomDropdownMenu(widget=domain_menu_file)
     domain_menu_file_drop.add_option(option='New Domain', command=create_domain)
@@ -272,11 +272,31 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     domain_menu_file_drop.add_option(option='Save Domain As...', command=save_domain_as)
     domain_menu_file_drop.add_separator()
     domain_menu_file_drop.add_option(option='Exit', command=exit_application)
+    # domain_menu.pack(anchor='n')
     
     # instance menu bar
-    inst_menu = CTkMenuBar(inst_window)
     inst_menu_file = inst_menu.add_cascade("File")
-        
+    inst_menu_file_drop = CustomDropdownMenu(widget=inst_menu_file)
+    
+    # policy load menu
+    policy_load_menu = policy_menu.add_cascade("Policy")
+    policy_load_menu_drop = CustomDropdownMenu(widget=policy_load_menu)
+    policy_load_menu_drop.add_option(option='No-Op', command=load_noop)
+    policy_load_menu_drop.add_option(option='Random', command=load_random)
+    policy_load_menu_drop.add_separator()
+    policy_load_menu_drop.add_option(option='JAX Planner (SLP)', command=load_jax_slp)
+    policy_load_menu_drop.add_option(option='JAX Planner (SLP+Replan)', command=load_jax_replan)
+    policy_load_menu_drop.add_option(option='JAX Planner (DRP)', command=load_jax_drp)
+    policy_load_menu_drop.add_separator()
+    policy_load_menu_drop.add_option(option='Gurobi Planner (SLP+Replan)', command=load_gurobi_replan)
+    policy_load_menu_drop.add_separator()
+    policy_load_menu_drop.add_option(option='Stable-Baselines3 (PPO)', command=load_sb3_ppo)
+    
+    # policy run menu
+    policy_run_menu = policy_menu.add_cascade("Run")
+    policy_run_menu_drop = CustomDropdownMenu(widget=policy_run_menu)
+    policy_run_menu_drop.add_option(option='Evaluate', command=evaluate)
+    policy_run_menu_drop.add_option(option='Record', command=record)
     
     # # instance file menu
     # inst_file_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
@@ -295,25 +315,7 @@ def assign_menubar_functions(domain_window, inst_window, policy_window,
     # inst_edit_menu.add_command(label='Paste', command=paste_instance_text)
     # inst_menu.add_cascade(label='Edit', menu=inst_edit_menu)
     #
-    # # policy load menu
-    # policy_load_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
-    # policy_load_menu.add_command(label='No-Op', command=load_noop)
-    # policy_load_menu.add_command(label='Random', command=load_random)
-    # policy_load_menu.add_separator()
-    # policy_load_menu.add_command(label='JAX Planner (SLP)', command=load_jax_slp)
-    # policy_load_menu.add_command(label='JAX Planner (SLP+Replan)', command=load_jax_replan)
-    # policy_load_menu.add_command(label='JAX Planner (DRP)', command=load_jax_drp)
-    # policy_load_menu.add_separator()
-    # policy_load_menu.add_command(label='Gurobi Planner (SLP+Replan)', command=load_gurobi_replan)
-    # policy_load_menu.add_separator()
-    # policy_load_menu.add_command(label='Stable-Baselines3 (PPO)', command=load_sb3_ppo)
-    # policy_menu.add_cascade(label='Select', menu=policy_load_menu)
-    #
-    # # policy run menu
-    # policy_run_menu = Menu(policy_menu, tearoff=False, activebackground='DodgerBlue')
-    # policy_run_menu.add_command(label='Evaluate', command=evaluate)
-    # policy_run_menu.add_command(label='Record', command=record)
-    # policy_menu.add_cascade(label='Run', menu=policy_run_menu)
+    
     #
     # # assign menu bar to window
     # domain_window.config(menu=domain_menu)
