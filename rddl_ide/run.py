@@ -33,7 +33,7 @@ def main():
     # policy window
     policy_window = customtkinter.CTkToplevel(domain_window)
     policy_window.title('[Policy] Policy')
-    o = 50
+    o = 35
     policy_window.geometry(f'{wi}x{h // 2 - o}+{wd}+{h // 2 + o}')
     policy_window.resizable(height=None, width=None)
     policy_window.columnconfigure(0, weight=1)
