@@ -18,17 +18,20 @@ from setuptools import setup, find_packages
 setup(
       name='rddl-ide',
       version='0.1',
-      author="Michael Gimelfarb",
+      author="Mike Gimelfarb",
       author_email="mike.gimelfarb@mail.utoronto.ca",
       description="IDE for pyRDDLGym",
       license="MIT License",
       url="https://github.com/pyrddlgym-project/rddl-ide",
       packages=find_packages(),
       install_requires=[
-          'pyRDDLGym>=2.0',
-          'tk'
+          'tk',
+          'Pygments>=2.18.0',
+          'customtkinter>=5.2.2',
+          'CTkMenuBar>=0.7',
+          'pyRDDLGym>=2.0'
         ],
-      python_requires=">=3.8",
+      python_requires=">=3.11",
       package_data={'': ['*.cfg', '*.rddl']},
       include_package_data=True,
       classifiers=[

@@ -1,9 +1,8 @@
 import os
 from difflib import SequenceMatcher
-from customtkinter import CTkToplevel, CTkOptionMenu, StringVar, CTkLabel, CTkButton, CTkEntry, CTkFrame
+from customtkinter import CTkToplevel, CTkOptionMenu, StringVar, CTkLabel, CTkButton, CTkEntry
 from customtkinter import filedialog as fd
-from CTkMenuBar import CTkMenuBar, CustomDropdownMenu
-from tkinter import Menu
+from CTkMenuBar import CustomDropdownMenu
 
 from core.execution import evaluate_policy_fn
 
