@@ -83,12 +83,11 @@ class CTkCodeViewer(customtkinter.CTkTextbox):
 class TextLineNumbers(customtkinter.CTkTextbox):
 
     def __init__(self, master, text_widget, **kwargs):
-        super().__init__(master, **kwargs)
+        super().__init__(master, activate_scrollbars=False, **kwargs)
  
         self.text_widget = text_widget
         for tag in ['<KeyRelease>', '<FocusIn>', '<MouseWheel>', '<Configure>', '<<Modified>>']:
             self.text_widget.bind(tag, self.on_key_release)
-        self.configure(state='disabled', width=55)
         
     def on_key_release(self, event=None):
         p, _ = self.text_widget.index("@0,0").split('.')
@@ -114,7 +113,7 @@ class CodeEditor:
             window, font=(my_font, 12), language=language, theme=theme, wrap='none')
         self.text = text_area
         
-        ln = TextLineNumbers(window, text_area, width=3, font=(my_font, 12))
+        ln = TextLineNumbers(window, text_area, width=50, font=(my_font, 12))
         ln.pack(side='left', fill='both')
         text_area.pack(expand=True, fill='both')
         

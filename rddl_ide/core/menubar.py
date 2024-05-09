@@ -272,11 +272,29 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
     domain_menu_file_drop.add_option(option='Save Domain As...', command=save_domain_as)
     domain_menu_file_drop.add_separator()
     domain_menu_file_drop.add_option(option='Exit', command=exit_application)
-    # domain_menu.pack(anchor='n')
+    
+    domain_menu_edit = domain_menu.add_cascade("Edit")
+    domain_menu_edit_drop = CustomDropdownMenu(widget=domain_menu_edit)
+    domain_menu_edit_drop.add_option(option='Copy', command=copy_domain_text)
+    domain_menu_edit_drop.add_option(option='Cut', command=cut_domain_text)
+    domain_menu_edit_drop.add_option(option='Paste', command=paste_domain_text)
     
     # instance menu bar
     inst_menu_file = inst_menu.add_cascade("File")
     inst_menu_file_drop = CustomDropdownMenu(widget=inst_menu_file)
+    inst_menu_file_drop.add_option(option='New Instance', command=create_instance)
+    inst_menu_file_drop.add_separator()
+    inst_menu_file_drop.add_option(option='Load Instance from File...', command=open_instance)
+    inst_menu_file_drop.add_separator()
+    inst_menu_file_drop.add_option(option='Save Instance', command=save_instance)
+    inst_menu_file_drop.add_option(option='Save Instance As...', command=save_instance_as)
+    
+    # # instance edit menu
+    inst_menu_edit = inst_menu.add_cascade("Edit")
+    inst_menu_edit_drop = CustomDropdownMenu(widget=inst_menu_edit)
+    inst_menu_edit_drop.add_option(option='Copy', command=copy_instance_text)
+    inst_menu_edit_drop.add_option(option='Cut', command=cut_instance_text)
+    inst_menu_edit_drop.add_option(option='Paste', command=paste_instance_text)
     
     # policy load menu
     policy_load_menu = policy_menu.add_cascade("Policy")
@@ -298,27 +316,3 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
     policy_run_menu_drop.add_option(option='Evaluate', command=evaluate)
     policy_run_menu_drop.add_option(option='Record', command=record)
     
-    # # instance file menu
-    # inst_file_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
-    # inst_file_menu.add_command(label='New Instance', command=create_instance)
-    # inst_file_menu.add_separator()
-    # inst_file_menu.add_command(label='Load Instance from File...', command=open_instance)
-    # inst_file_menu.add_separator()
-    # inst_file_menu.add_command(label='Save Instance', command=save_instance)
-    # inst_file_menu.add_command(label='Save Instance As...', command=save_instance_as)
-    # inst_menu.add_cascade(label='File', menu=inst_file_menu)
-    #
-    # # instance edit menu
-    # inst_edit_menu = Menu(inst_menu, tearoff=False, activebackground='DodgerBlue')
-    # inst_edit_menu.add_command(label='Copy', command=copy_instance_text)
-    # inst_edit_menu.add_command(label='Cut', command=cut_instance_text)
-    # inst_edit_menu.add_command(label='Paste', command=paste_instance_text)
-    # inst_menu.add_cascade(label='Edit', menu=inst_edit_menu)
-    #
-    
-    #
-    # # assign menu bar to window
-    # domain_window.config(menu=domain_menu)
-    # inst_window.config(menu=inst_menu)
-    # policy_window.config(menu=policy_menu)
-
