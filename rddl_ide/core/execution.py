@@ -1,6 +1,6 @@
 import sys
 import traceback
-from tkinter import messagebox, END
+from tkinter import messagebox
 
 import pyRDDLGym
 from pyRDDLGym.core.visualizer.movie import MovieGenerator
@@ -33,7 +33,7 @@ def _handle_error_message(err):
 def evaluate_policy_fn(domain_file, inst_file, policy_editor, viz, record):
     
     # compile policy from given class
-    policy_source = policy_editor.get(1.0, END)
+    policy_source = policy_editor.get(1.0, 'end')
     try:
         compiled = compile(policy_source, '', 'exec')
         exec(compiled, globals())
