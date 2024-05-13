@@ -5,6 +5,13 @@ from core.codearea import CodeEditor
 from core.menubar import assign_menubar_functions
 
 
+class ToplevelWindow(customtkinter.CTkToplevel):
+
+    def __init__(self, *args, **kwargs):
+        super(ToplevelWindow, self).__init__(*args, **kwargs)
+        self.after(250, lambda: self.iconbitmap('icon.ico'))
+        
+        
 def main():
     customtkinter.set_appearance_mode("system")
     customtkinter.set_default_color_theme("theme.json")
@@ -12,6 +19,7 @@ def main():
     # domain window
     domain_window = customtkinter.CTk()
     domain_window.title('[Domain] Untitled')
+    domain_window.wm_iconbitmap('icon.ico')
     w, h = domain_window._max_width, domain_window._max_height
     w = domain_window.winfo_screenwidth()
     h = domain_window.winfo_screenheight()
@@ -24,8 +32,9 @@ def main():
     domain_window.rowconfigure(0, weight=1)
     
     # instance window
-    inst_window = customtkinter.CTkToplevel(domain_window)
+    inst_window = ToplevelWindow(domain_window)
     inst_window.title('[Instance] Untitled')
+    inst_window.wm_iconbitmap('icon.ico')
     wi = w - wd
     inst_window.geometry(f'{wi}x{h // 2}+{wd}+0')
     inst_window.resizable(height=None, width=None)
@@ -33,8 +42,9 @@ def main():
     inst_window.rowconfigure(0, weight=1)
     
     # policy window
-    policy_window = customtkinter.CTkToplevel(domain_window)
+    policy_window = ToplevelWindow(domain_window)
     policy_window.title('[Policy] Policy')
+    policy_window.wm_iconbitmap('icon.ico')
     o = 35
     policy_window.geometry(f'{wi}x{h // 2 - o}+{wd}+{h // 2 + o}')
     policy_window.resizable(height=None, width=None)
@@ -50,8 +60,8 @@ def main():
     policy_editor = CodeEditor(policy_window, 'python')
     
     # menu bars
-    assign_menubar_functions(domain_menu, domain_window, 
-                             inst_menu, inst_window, 
+    assign_menubar_functions(domain_menu, domain_window,
+                             inst_menu, inst_window,
                              policy_menu, policy_window,
                              domain_editor.text, inst_editor.text, policy_editor.text)
     domain_window.update()
