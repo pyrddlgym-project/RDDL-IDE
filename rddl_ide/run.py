@@ -34,7 +34,6 @@ def main():
     # instance window
     inst_window = ToplevelWindow(domain_window)
     inst_window.title('[Instance] Untitled')
-    inst_window.wm_iconbitmap('icon.ico')
     wi = w - wd
     inst_window.geometry(f'{wi}x{h // 2}+{wd}+0')
     inst_window.resizable(height=None, width=None)
@@ -44,7 +43,6 @@ def main():
     # policy window
     policy_window = ToplevelWindow(domain_window)
     policy_window.title('[Policy] Policy')
-    policy_window.wm_iconbitmap('icon.ico')
     o = 35
     policy_window.geometry(f'{wi}x{h // 2 - o}+{wd}+{h // 2 + o}')
     policy_window.resizable(height=None, width=None)
