@@ -1,11 +1,11 @@
-import customtkinter
+from customtkinter import CTk, CTkToplevel, set_appearance_mode, set_default_color_theme
 from CTkMenuBar import CTkMenuBar
 
 from core.codearea import CodeEditor
 from core.menubar import assign_menubar_functions
 
 
-class ToplevelWindow(customtkinter.CTkToplevel):
+class ToplevelWindow(CTkToplevel):
 
     def __init__(self, *args, **kwargs):
         super(ToplevelWindow, self).__init__(*args, **kwargs)
@@ -13,11 +13,11 @@ class ToplevelWindow(customtkinter.CTkToplevel):
         
         
 def main():
-    customtkinter.set_appearance_mode("system")
-    customtkinter.set_default_color_theme("theme.json")
+    set_appearance_mode("system")
+    set_default_color_theme("theme.json")
     
     # domain window
-    domain_window = customtkinter.CTk()
+    domain_window = CTk()
     domain_window.title('[Domain] Untitled')
     domain_window.wm_iconbitmap('icon.ico')
     w, h = domain_window._max_width, domain_window._max_height

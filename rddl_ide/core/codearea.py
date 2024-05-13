@@ -1,5 +1,5 @@
-import customtkinter
 from tkinter import font
+from customtkinter import CTkTextbox, CTkScrollbar
 from pygments import token
 from pygments.styles import get_style_by_name
 import re
@@ -60,18 +60,16 @@ RDDL_GRAMMAR = [
 ]
         
 
-class CTkCodeViewer(customtkinter.CTkTextbox):
+class CTkCodeViewer(CTkTextbox):
 
     def __init__(self, *args, width: int=100, height: int=32, 
                  language='python', theme='monokai', **kwargs):
         super().__init__(*args, width=width, height=height, **kwargs)
-        self._monokai_style = get_style_by_name(theme)
-        self._style_parsed = self._monokai_style.list_styles()
-        for key in self._style_parsed:
+        
+        style_parsed = get_style_by_name(theme).list_styles()
+        for key in style_parsed:
             if key[1]["color"] != "" and key[1]["color"] != None:
-                tag_name = str(key[0])
-                color = "#" + key[1]["color"]
-                self.tag_config(tag_name, foreground=color)
+                self.tag_config(tagName=str(key[0]), foreground="#" + key[1]["color"])
         if language == 'python':
             self.patterns = PYTHON_GRAMMAR
         else:
@@ -87,7 +85,7 @@ class CTkCodeViewer(customtkinter.CTkTextbox):
                         str(tag), f"{i + 1}.{found.start()}", f"{i + 1}.{found.end()}")
 
 
-class TextLineNumbers(customtkinter.CTkTextbox):
+class TextLineNumbers(CTkTextbox):
 
     def __init__(self, master, text_widget, **kwargs):
         super().__init__(master, activate_scrollbars=False, **kwargs)
@@ -122,6 +120,6 @@ class CodeEditor:
         ln = TextLineNumbers(window, text_area, width=50, font=(my_font, 13))
         ln.pack(side='left', fill='both')
         text_area.pack(expand=True, fill='both')        
-        customtkinter.CTkScrollbar(window, command=text_area.xview)
-        customtkinter.CTkScrollbar(window, command=text_area.yview)
+        CTkScrollbar(window, command=text_area.xview)
+        CTkScrollbar(window, command=text_area.yview)
         
