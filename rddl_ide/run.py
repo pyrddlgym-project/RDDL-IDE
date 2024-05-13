@@ -24,12 +24,10 @@ def main():
     w = domain_window.winfo_screenwidth()
     h = domain_window.winfo_screenheight()
     w = int(w * 0.995)
-    h = int(h * 0.925)
+    h = int(h * 0.995)
     wd = int(0.6 * w)
     domain_window.geometry(f'{wd}x{h}+0+0')
     domain_window.resizable(height=None, width=None)
-    domain_window.columnconfigure(0, weight=1)
-    domain_window.rowconfigure(0, weight=1)
     
     # instance window
     inst_window = ToplevelWindow(domain_window)
@@ -37,17 +35,12 @@ def main():
     wi = w - wd
     inst_window.geometry(f'{wi}x{h // 2}+{wd}+0')
     inst_window.resizable(height=None, width=None)
-    inst_window.columnconfigure(0, weight=1)
-    inst_window.rowconfigure(0, weight=1)
     
     # policy window
     policy_window = ToplevelWindow(domain_window)
     policy_window.title('[Policy] Policy')
-    o = 35
-    policy_window.geometry(f'{wi}x{h // 2 - o}+{wd}+{h // 2 + o}')
+    policy_window.geometry(f'{wi}x{h // 2}+{wd}+{h // 2}')
     policy_window.resizable(height=None, width=None)
-    policy_window.columnconfigure(0, weight=1)
-    policy_window.rowconfigure(0, weight=1)
     
     # text editors
     domain_menu = CTkMenuBar(domain_window)
