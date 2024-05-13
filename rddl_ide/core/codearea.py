@@ -62,12 +62,8 @@ RDDL_GRAMMAR = [
 
 class CTkCodeViewer(customtkinter.CTkTextbox):
 
-    def __init__(self, *args,
-                 width: int=100,
-                 height: int=32,
-                 language="python",
-                 theme="monokai",
-                 **kwargs):
+    def __init__(self, *args, width: int=100, height: int=32, 
+                 language='python', theme='monokai', **kwargs):
         super().__init__(*args, width=width, height=height, **kwargs)
         self._monokai_style = get_style_by_name(theme)
         self._style_parsed = self._monokai_style.list_styles()
@@ -83,7 +79,7 @@ class CTkCodeViewer(customtkinter.CTkTextbox):
         self.bind("<KeyRelease>", lambda *args: self.apply())
         
     def apply(self):
-        for tag, pattern in self.patterns:
+        for (tag, pattern) in self.patterns:
             text = self.get('0.0', 'end').splitlines()
             for (i, line) in enumerate(text):
                 for found in re.finditer(pattern, line):
@@ -101,11 +97,10 @@ class TextLineNumbers(customtkinter.CTkTextbox):
             self.text_widget.bind(tag, self.on_key_release)
         
     def on_key_release(self, event=None):
-        p, _ = self.text_widget.index("@0,0").split('.')
-        p = int(p)
+        p = int(self.text_widget.index("@0,0").split('.')[0])
         final_index = str(self.text_widget.index('end'))
-        num_of_lines = final_index.split('.')[0]
-        line_numbers_string = "\n".join(str(p + no) for no in range(int(num_of_lines)))
+        num_of_lines = int(final_index.split('.')[0])
+        line_numbers_string = "\n".join(str(p + no) for no in range(num_of_lines))
                 
         self.configure(state='normal')
         self.delete(0.0, 'end')
@@ -126,8 +121,7 @@ class CodeEditor:
         
         ln = TextLineNumbers(window, text_area, width=50, font=(my_font, 13))
         ln.pack(side='left', fill='both')
-        text_area.pack(expand=True, fill='both')
-        
-        _ = customtkinter.CTkScrollbar(window, command=text_area.xview)
-        _ = customtkinter.CTkScrollbar(window, command=text_area.yview)
+        text_area.pack(expand=True, fill='both')        
+        customtkinter.CTkScrollbar(window, command=text_area.xview)
+        customtkinter.CTkScrollbar(window, command=text_area.yview)
         

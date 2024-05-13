@@ -53,9 +53,9 @@ def main():
     domain_menu = CTkMenuBar(domain_window)
     inst_menu = CTkMenuBar(inst_window)
     policy_menu = CTkMenuBar(policy_window)
-    domain_editor = CodeEditor(domain_window, 'rddl')
-    inst_editor = CodeEditor(inst_window, 'rddl')
-    policy_editor = CodeEditor(policy_window, 'python')
+    domain_editor = CodeEditor(domain_window, language='rddl')
+    inst_editor = CodeEditor(inst_window, language='rddl')
+    policy_editor = CodeEditor(policy_window, language='python')
     
     # menu bars
     assign_menubar_functions(domain_menu, domain_window,

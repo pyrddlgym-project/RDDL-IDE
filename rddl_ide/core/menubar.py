@@ -22,10 +22,9 @@ def closest_substring(corpus, query, case_sensitive=True):
         return match_values
 
     def adjust_left_right_positions():
-        p_l, bp_l = [pos] * 2
-        p_r, bp_r = [pos + qlen] * 2
-        bmv_l = match_values[p_l // step]
-        bmv_r = match_values[p_l // step]
+        p_l, bp_l = pos, pos
+        p_r, bp_r = pos + qlen, pos + qlen
+        bmv_l = bmv_r = match_values[p_l // step]
         for f in range(flex):
             ll = _match(query, corpus[p_l - f: p_r])
             if ll > bmv_l:
@@ -177,8 +176,8 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
             info = manager.get_problem(domain)
             domain_file = info.get_domain()
             inst_file = info.get_instance(instance)
-            viz = info.get_visualizer()
-            
+            viz = info.get_visualizer()   
+                     
             _window_from_file(domain_window, domain_editor, 'Domain', domain_file)
             _window_from_file(inst_window, inst_editor, 'Instance', inst_file)            
             close_me()
