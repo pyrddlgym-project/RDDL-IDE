@@ -110,9 +110,16 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
         if inst_file == '': inst_file = None            
         _window_from_file(inst_window, inst_editor, 'Instance', inst_file)
     
+    
+    class ToplevelWindow(CTkToplevel):
+    
+        def __init__(self, *args, **kwargs):
+            super(ToplevelWindow, self).__init__(*args, **kwargs)
+            self.after(250, lambda: self.iconbitmap('icon.ico'))
+        
     def open_from_dialog():
         global domain_file, inst_file, viz
-        master = CTkToplevel(domain_window)
+        master = ToplevelWindow(domain_window)
         
         def changed_context(*args):
             domain_options = manager.list_problems_by_context(context_var.get())
