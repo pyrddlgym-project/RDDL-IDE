@@ -1,6 +1,6 @@
 import os
 from difflib import SequenceMatcher
-from customtkinter import CTkToplevel, CTkOptionMenu, StringVar, CTkLabel, CTkButton, CTkEntry
+from customtkinter import CTkToplevel, CTkOptionMenu, StringVar, CTkLabel, CTkButton
 from customtkinter import filedialog as fd
 from CTkMenuBar import CustomDropdownMenu
 
@@ -114,19 +114,50 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
         global domain_file, inst_file, viz
         master = CTkToplevel(domain_window)
         
+        def changed_context(*args):
+            domain_options = manager.list_problems_by_context(context_var.get())
+            domain_var.set(domain_options[0])
+            domain_dropdown.configure(values=domain_options)
+            
+        def changed_domain(*args):
+            problem_info = manager.get_problem(domain_var.get())
+            instance_options = problem_info.list_instances()
+            instance_var.set(instance_options[0])
+            instance_dropdown.configure(values=instance_options)
+            
         from rddlrepository.core.manager import RDDLRepoManager
-        domain_options = RDDLRepoManager().list_problems()
+        manager = RDDLRepoManager()
+        
+        context_options = manager.list_contexts()
+        context_var = StringVar(master)
+        context_var.set(context_options[0])
+        context_var.trace('w', changed_context)
+        context_dropdown = CTkOptionMenu(
+            master, variable=context_var, values=context_options)
+        
+        domain_options = manager.list_problems()
         domain_var = StringVar(master)
         domain_var.set(domain_options[0])
+        domain_var.trace('w', changed_domain)
         domain_dropdown = CTkOptionMenu(
             master, variable=domain_var, values=domain_options)
-
-        CTkLabel(master, text="Domain").grid(row=0)
-        CTkLabel(master, text="Instance").grid(row=1)
+        
+        problem_info = manager.get_problem(domain_options[0])
+        instance_options = problem_info.list_instances()
+        instance_var = StringVar(master)
+        instance_var.set(instance_options[0])
+        instance_dropdown = CTkOptionMenu(
+            master, variable=instance_var, values=instance_options)
+        
+        CTkLabel(master, text="Context").grid(row=0)
+        CTkLabel(master, text="Domain").grid(row=1)
+        CTkLabel(master, text="Instance").grid(row=2)
+        e0 = context_dropdown
         e1 = domain_dropdown
-        e2 = CTkEntry(master, placeholder_text='0')
-        e1.grid(row=0, column=1)
-        e2.grid(row=1, column=1)
+        e2 = instance_dropdown
+        e0.grid(row=0, column=1)
+        e1.grid(row=1, column=1)
+        e2.grid(row=2, column=1)
         
         def close_me():
             master.quit()      
@@ -134,7 +165,7 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
             
         def select_problem():
             global domain_file, inst_file, viz
-            domain, instance = domain_var.get(), e2.get()
+            domain, instance = domain_var.get(), instance_var.get()
             manager = RDDLRepoManager()
             info = manager.get_problem(domain)
             domain_file = info.get_domain()
