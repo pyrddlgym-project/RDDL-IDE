@@ -39,9 +39,19 @@ RDDL_GRAMMAR = [
     (token.Keyword, (r'\b(?P<FTYPES>state-fluent|action-fluent|observ-fluent|'
                      r'interm-fluent|derived-fluent|non-fluent)\b')),
     (token.Keyword.Type, r'\b(?P<TYPES>bool|int|real|object)\b'),
-    (token.Name.Builtin, r"([^.'\"\\#]\b|^)(?P<BUILTIN>exp|log|sin|cos|tan|min|max|pow)\b"),
-    (token.Name.Builtin, r'\b(?P<AGGREGATION>sum|prod|minimum|maximum|exists|forall|argmax|argmin)'),
-    (token.Name.Builtin, r'\b(?P<RANDOM>KronDelta|DiracDelta|Bernoulli|Normal|Gamma|Uniform)'),
+    (token.Name.Builtin, (r"([^.'\"\\#]\b|^)(?P<BUILTIN>abs|sgn|round|floor|ceil|cos|sin|tan|" 
+                          r"acos|asin|atan|cosh|sinh|tanh|exp|ln|sqrt|lngamma|gamma"
+                          ")\b")),
+    (token.Name.Builtin, r'\b(?P<AGGREGATION>sum|avg|prod|minimum|maximum|exists|forall|argmax|argmin)'),
+    (token.Name.Builtin, r'\b(?P<MATRIX>det|inverse|pinverse|cholesky)'),
+    (token.Name.Builtin, (r'\b(?P<RANDOM>KronDelta|DiracDelta|Bernoulli|Normal|Uniform|'
+                          r'Poisson|Exponential|Weibull|Gamma|Binomial|NegativeBinomial|'
+                          r'Beta|Geometric|Pareto|Student|Gumbel|Laplace|Cauchy|Gompertz|'
+                          r'ChiSquared|Kumaraswamy|Discrete|UnnormDiscrete|'
+                          r'Discrete(p)|UnnormDiscrete(p)'
+                          r')')),
+    (token.Name.Builtin, (r'\b(?P<RANDOMVECTOR>MultivariateNormal|MultivariateStudent|'
+                          r'Dirichlet|Multinomial)')),
     (token.Name.Variable, r"\?([^,:;+\-\*\/\s}\)\]]+)"),
     (token.Literal, r"\@([^,:;+\-\*\/\s}\)\]]+)"),
     (token.Number, r"\b(?P<NUMBER>((0x|0b|0o|#)[\da-fA-F]+)|((\d*\.)?\d+))\b"),
@@ -110,10 +120,10 @@ class CodeEditor:
         else:
             my_font = 'Courier'
         text_area = CTkCodeViewer(
-            window, font=(my_font, 12), language=language, theme=theme, wrap='none')
+            window, font=(my_font, 13), language=language, theme=theme, wrap='none')
         self.text = text_area
         
-        ln = TextLineNumbers(window, text_area, width=50, font=(my_font, 12))
+        ln = TextLineNumbers(window, text_area, width=50, font=(my_font, 13))
         ln.pack(side='left', fill='both')
         text_area.pack(expand=True, fill='both')
         

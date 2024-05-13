@@ -6,15 +6,17 @@ from core.menubar import assign_menubar_functions
 
 
 def main():
-
+    customtkinter.set_appearance_mode("system")
+    customtkinter.set_default_color_theme("theme.json")
+    
     # domain window
     domain_window = customtkinter.CTk()
     domain_window.title('[Domain] Untitled')
     w, h = domain_window._max_width, domain_window._max_height
     w = domain_window.winfo_screenwidth()
     h = domain_window.winfo_screenheight()
-    w = int(w * 0.99)
-    h = int(h * 0.9)
+    w = int(w * 0.995)
+    h = int(h * 0.925)
     wd = int(0.6 * w)
     domain_window.geometry(f'{wd}x{h}+0+0')
     domain_window.resizable(height=None, width=None)
