@@ -40,7 +40,8 @@ RDDL_GRAMMAR = [
                      r'interm-fluent|derived-fluent|non-fluent)\b')),
     (token.Keyword.Type, r'\b(?P<TYPES>bool|int|real|object)\b'),
     (token.Name.Builtin, (r"([^.'\"\\#]\b|^)(?P<BUILTIN>abs|sgn|round|floor|ceil|cos|sin|tan|" 
-                          r"acos|asin|atan|cosh|sinh|tanh|exp|ln|sqrt|lngamma|gamma"
+                          r"acos|asin|atan|cosh|sinh|tanh|exp|ln|sqrt|lngamma|gamma|"
+                          r"div|mod|fmod|min|max|pow|log|hypot"
                           ")\b")),
     (token.Name.Builtin, r'\b(?P<AGGREGATION>sum|avg|prod|minimum|maximum|exists|forall|argmax|argmin)'),
     (token.Name.Builtin, r'\b(?P<MATRIX>det|inverse|pinverse|cholesky)'),
