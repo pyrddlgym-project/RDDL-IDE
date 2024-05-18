@@ -32,14 +32,13 @@ def main():
     # instance window
     inst_window = ToplevelWindow(domain_window)
     inst_window.title('[Instance] Untitled')
-    wi = w - wd
-    inst_window.geometry(f'{wi}x{h // 2}+{wd}+0')
+    inst_window.geometry(f'{w - wd}x{h // 2}+{wd}+0')
     inst_window.resizable(height=None, width=None)
     
     # policy window
     policy_window = ToplevelWindow(domain_window)
     policy_window.title('[Policy] Policy')
-    policy_window.geometry(f'{wi}x{h // 2}+{wd}+{h // 2}')
+    policy_window.geometry(f'{w - wd}x{h // 2 - 30}+{wd}+{h // 2 + 30}')
     policy_window.resizable(height=None, width=None)
     
     # text editors
