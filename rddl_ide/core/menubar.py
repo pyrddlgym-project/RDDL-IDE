@@ -1,6 +1,6 @@
 import os
 from difflib import SequenceMatcher
-from customtkinter import CTkToplevel, CTkOptionMenu, StringVar, CTkLabel, CTkButton
+from customtkinter import CTkToplevel, CTkOptionMenu, StringVar, CTkLabel, CTkButton, CTkEntry
 from customtkinter import filedialog as fd
 from CTkMenuBar import CustomDropdownMenu
 
@@ -132,7 +132,7 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
             instance_dropdown.configure(values=instance_options)
             
         from rddlrepository.core.manager import RDDLRepoManager
-        manager = RDDLRepoManager()
+        manager = RDDLRepoManager(rebuild=True)
         
         context_options = manager.list_contexts()
         context_var = StringVar(master)
@@ -227,6 +227,81 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
         domain_window.destroy() 
         inst_window.destroy() 
     
+    def register_domain():        
+        master = ToplevelWindow(domain_window)
+        CTkLabel(master, text="Context").grid(row=0)
+        CTkLabel(master, text="Domain Name").grid(row=1)
+        e1 = CTkEntry(master)
+        e2 = CTkEntry(master)
+        e1.grid(row=0, column=1)
+        e2.grid(row=1, column=1)
+        
+        def close_me():
+            master.quit()      
+            master.destroy()   
+            
+        def save_domain():
+            from rddlrepository.core.manager import RDDLRepoManager
+            manager = RDDLRepoManager()
+            if e1.get() not in manager.list_contexts():
+                manager.register_context(e1.get())
+            manager.register_domain(
+                e2.get(), e1.get(), domain_editor.get(1.0, 'end'))
+            close_me()
+            
+        CTkButton(master, text='Register', command=save_domain).grid(
+            row=2, column=0, sticky='w', pady=4)
+        CTkButton(master, text='Close', command=close_me).grid(
+            row=2, column=1, sticky='w', pady=4)
+    
+    def register_instance():
+        master = ToplevelWindow(domain_window)
+        
+        from rddlrepository.core.manager import RDDLRepoManager
+        manager = RDDLRepoManager() 
+        
+        def changed_context(*args):
+            domain_options = manager.list_problems_by_context(context_var.get())
+            domain_var.set(domain_options[0])
+            domain_dropdown.configure(values=domain_options)
+            
+        context_options = manager.list_contexts()
+        context_var = StringVar(master)
+        context_var.set(context_options[0])
+        context_var.trace('w', changed_context)
+        context_dropdown = CTkOptionMenu(
+            master, variable=context_var, values=context_options)
+        
+        domain_options = manager.list_problems()
+        domain_var = StringVar(master)
+        domain_var.set(domain_options[0])
+        domain_dropdown = CTkOptionMenu(
+            master, variable=domain_var, values=domain_options)
+        
+        CTkLabel(master, text="Context").grid(row=0)
+        CTkLabel(master, text="Domain").grid(row=1)
+        CTkLabel(master, text="Instance").grid(row=2)
+        e0 = context_dropdown
+        e1 = domain_dropdown
+        e2 = CTkEntry(master)
+        e0.grid(row=0, column=1)
+        e1.grid(row=1, column=1)
+        e2.grid(row=2, column=1)
+        
+        def close_me():
+            master.quit()      
+            master.destroy()   
+        
+        def save_instance():
+            problem_info = manager.get_problem(domain_var.get())
+            problem_info.register_instance(e2.get(), inst_editor.get(1.0, 'end'))
+            close_me()
+        
+        CTkButton(master, text='Register', command=save_instance).grid(
+            row=3, column=0, sticky='w', pady=4)
+        CTkButton(master, text='Close', command=close_me).grid(
+            row=3, column=1, sticky='w', pady=4)
+        
     # EDIT functions
     def copy_domain_text():
         domain_editor.event_generate('<<Copy>>')
@@ -308,6 +383,8 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
     domain_menu_file_drop.add_option(option='Save Domain As...', command=save_domain_as)
     domain_menu_file_drop.add_separator()
     domain_menu_file_drop.add_option(option='Exit', command=exit_application)
+    domain_menu_file_drop.add_separator()
+    domain_menu_file_drop.add_option(option='Register Domain...', command=register_domain)
     
     domain_menu_edit = domain_menu.add_cascade("Edit")
     domain_menu_edit_drop = CustomDropdownMenu(widget=domain_menu_edit)
@@ -324,6 +401,8 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
     inst_menu_file_drop.add_separator()
     inst_menu_file_drop.add_option(option='Save Instance', command=save_instance)
     inst_menu_file_drop.add_option(option='Save Instance As...', command=save_instance_as)
+    inst_menu_file_drop.add_separator()
+    inst_menu_file_drop.add_option(option='Register Instance...', command=register_instance)
     
     # # instance edit menu
     inst_menu_edit = inst_menu.add_cascade("Edit")
