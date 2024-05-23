@@ -245,8 +245,7 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
             manager = RDDLRepoManager()
             if e1.get() not in manager.list_contexts():
                 manager.register_context(e1.get())
-            manager.register_domain(
-                e2.get(), e1.get(), domain_editor.get(1.0, 'end'))
+            manager.register_domain(e2.get(), e1.get(), domain_editor.get(1.0, 'end'))
             close_me()
             
         CTkButton(master, text='Register', command=save_domain).grid(
@@ -328,6 +327,25 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
         policy_window.title(f'[Policy] {caption}')
         policy_editor.apply()
     
+    def load_policy_from_file():
+        policy_file = fd.askopenfilename(defaultextension='.py',
+                                         filetypes=[('Python File', '*.py*')])
+        if policy_file is not None and policy_file:
+            with open(policy_file, 'r') as policy_file:
+                policy_editor.delete(1.0, 'end')
+                policy_editor.insert(1.0, policy_file.read())
+                policy_window.title('[Policy] Custom')
+                policy_editor.apply()
+        
+    def save_policy_as():
+        policy_file = fd.asksaveasfilename(initialfile='policy.py',
+                                           defaultextension='.py',
+                                           filetypes=[('Python File', '*.py*')])
+        if policy_file is not None and policy_file:
+            with open(policy_file, 'w') as new_file:
+                new_file.write(policy_editor.get(1.0, 'end'))
+                new_file.close()
+        
     def load_noop():
         _fill_policy_window('noop', 'NoOp')
     
@@ -376,15 +394,15 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
     domain_menu_file_drop = CustomDropdownMenu(widget=domain_menu_file)
     domain_menu_file_drop.add_option(option='New Domain', command=create_domain)
     domain_menu_file_drop.add_separator()
-    domain_menu_file_drop.add_option(option='Load Domain from Repository...', command=open_from_dialog)
+    domain_menu_file_drop.add_option(option='Load Domain from rddlrepository...', command=open_from_dialog)
     domain_menu_file_drop.add_option(option='Load Domain from File...', command=open_domain)
     domain_menu_file_drop.add_separator()
     domain_menu_file_drop.add_option(option='Save Domain', command=save_domain)
     domain_menu_file_drop.add_option(option='Save Domain As...', command=save_domain_as)
     domain_menu_file_drop.add_separator()
-    domain_menu_file_drop.add_option(option='Exit', command=exit_application)
+    domain_menu_file_drop.add_option(option='Register Domain in rddlrepository...', command=register_domain)
     domain_menu_file_drop.add_separator()
-    domain_menu_file_drop.add_option(option='Register Domain...', command=register_domain)
+    domain_menu_file_drop.add_option(option='Exit', command=exit_application)
     
     domain_menu_edit = domain_menu.add_cascade("Edit")
     domain_menu_edit_drop = CustomDropdownMenu(widget=domain_menu_edit)
@@ -402,17 +420,23 @@ def assign_menubar_functions(domain_menu, domain_window, inst_menu, inst_window,
     inst_menu_file_drop.add_option(option='Save Instance', command=save_instance)
     inst_menu_file_drop.add_option(option='Save Instance As...', command=save_instance_as)
     inst_menu_file_drop.add_separator()
-    inst_menu_file_drop.add_option(option='Register Instance...', command=register_instance)
+    inst_menu_file_drop.add_option(option='Register Instance in rddlrepository...', command=register_instance)
     
-    # # instance edit menu
+    # instance edit menu
     inst_menu_edit = inst_menu.add_cascade("Edit")
     inst_menu_edit_drop = CustomDropdownMenu(widget=inst_menu_edit)
     inst_menu_edit_drop.add_option(option='Copy', command=copy_instance_text)
     inst_menu_edit_drop.add_option(option='Cut', command=cut_instance_text)
     inst_menu_edit_drop.add_option(option='Paste', command=paste_instance_text)
     
+    # policy file menu
+    policy_file_menu = policy_menu.add_cascade("File")
+    policy_file_menu_drop = CustomDropdownMenu(widget=policy_file_menu)
+    policy_file_menu_drop.add_option(option='Load Policy from File...', command=load_policy_from_file)
+    policy_file_menu_drop.add_option(option='Save Policy As...', command=save_policy_as)
+    
     # policy load menu
-    policy_load_menu = policy_menu.add_cascade("Policy")
+    policy_load_menu = policy_menu.add_cascade("Baseline")
     policy_load_menu_drop = CustomDropdownMenu(widget=policy_load_menu)
     policy_load_menu_drop.add_option(option='No-Op', command=load_noop)
     policy_load_menu_drop.add_option(option='Random', command=load_random)
