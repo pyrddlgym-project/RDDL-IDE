@@ -6,7 +6,7 @@ from pyRDDLGym_jax.core.planner import (
 PARAMETERS = """
     [Model]
     logic='FuzzyLogic'
-    logic_kwargs={'weight': 10}
+    logic_kwargs={'weight': 20}
     tnorm='ProductTNorm'
     tnorm_kwargs={}
     
@@ -21,16 +21,16 @@ PARAMETERS = """
     
     [Training]
     key=42
-    epochs=1000
+    epochs=5000
     train_seconds=2
+    policy_hyperparams=2.0
 """
 
 def build_policy(env):
     config, args = _parse_config_string(PARAMETERS)
-    planner_args, plan_kwargs, train_args = _load_config(config, args)    
-    policy_hyperparams = {action: 1.0 for action in env.model.action_fluents}
+    planner_args, _, train_args = _load_config(config, args)
     planner = JaxBackpropPlanner(rddl=env.model, **planner_args)
-    return JaxOnlineController(planner, policy_hyperparams=policy_hyperparams, **train_args)
+    return JaxOnlineController(planner, **train_args)
 
 def required_env_args():
     return {'vectorized': True}
