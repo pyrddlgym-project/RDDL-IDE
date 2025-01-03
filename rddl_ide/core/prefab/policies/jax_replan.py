@@ -6,7 +6,6 @@ from pyRDDLGym_jax.core.planner import (
 PARAMETERS = """
     [Model]
     logic='FuzzyLogic'
-    logic_kwargs={'weight': 20}
     tnorm='ProductTNorm'
     tnorm_kwargs={}
     

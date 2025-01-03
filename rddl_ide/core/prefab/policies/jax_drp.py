@@ -6,7 +6,6 @@ from pyRDDLGym_jax.core.planner import (
 PARAMETERS = """
     [Model]
     logic='FuzzyLogic'
-    logic_kwargs={'weight': 20}
     tnorm='ProductTNorm'
     tnorm_kwargs={}
     
@@ -23,7 +22,6 @@ PARAMETERS = """
     epochs=30000
     train_seconds=60
     policy_hyperparams=2.0
-    plot_step=50
 """
 
 def build_policy(env):
